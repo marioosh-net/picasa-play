@@ -12,8 +12,11 @@ public class Application extends Controller {
 	}
 	*/
 
-	public static Result index() {
-		return ok("Hello World");
+	public static Result index(String name) {
+		if(name == null) {
+			return ok("Hello World");
+		}
+		return ok("Hello "+name);
 	}
 
 }
