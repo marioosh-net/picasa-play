@@ -1,0 +1,8 @@
+@(photos: List[com.google.gdata.data.photos.PhotoEntry])
+@main("Photos") {
+	<ul> 
+	@for(photo <- photos) {
+	  <li><a href="@photo.getHtmlLink().getHref()"><img src="@photo.getMediaThumbnails().get(0).getUrl()"/>@photo.getTitle().getPlainText()</a></li>
+	} 
+	</ul>
+}

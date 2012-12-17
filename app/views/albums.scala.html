@@ -1,0 +1,8 @@
+@(albums: List[model.Album])
+@main("Albums") {
+	<ul> 
+	@for(album <- albums) {
+	  <li><a href="/album/@album.getId()">@album.getTitle()</a></li>
+	} 
+	</ul>
+}

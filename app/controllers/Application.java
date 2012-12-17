@@ -3,7 +3,12 @@ package controllers;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import model.Album;
 import com.google.gdata.client.photos.PicasawebService;
+import com.google.gdata.data.photos.AlbumEntry;
+import com.google.gdata.data.photos.AlbumFeed;
 import com.google.gdata.data.photos.UserFeed;
 import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.util.ServiceException;
@@ -23,12 +28,16 @@ public class Application extends Controller {
 		}		
 	}
 	
-	public static Result index(String name) throws IOException, ServiceException {
+	public static Result albums() throws IOException, ServiceException {
 		Logger.info(myService+"");
-		Logger.info(name);
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album");
 		UserFeed myUserFeed = myService.getFeed(feedUrl, UserFeed.class);
-		return ok(albums.render(myUserFeed.getAlbumEntries()));
+		List<Album> l = new ArrayList<Album>();
+		for(AlbumEntry a: myUserFeed.getAlbumEntries()) {
+			String id = a.getId().substring(a.getId().lastIndexOf('/')+1);
+			l.add(new Album(id, a.getTitle().getPlainText()));
+		}
+		return ok(albums.render(l));
 
 		/*
 		Logger.info(Play.application().path()+"");
@@ -40,4 +49,9 @@ public class Application extends Controller {
 		*/
 	}
 
+	public static Result photos(String albumId) throws IOException, ServiceException {		
+		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId);
+		AlbumFeed feed = myService.getFeed(feedUrl, AlbumFeed.class);			
+		return ok(photos.render(feed.getPhotoEntries()));
+	}
 }
