@@ -1,5 +1,6 @@
 @(albums: List[model.Album])
 @main("Albums") {
+    <ul class="menu"><li><a href="/">Home</a></li></ul>
 	<ul class="albums"> 
 	@for(album <- albums) {
 	  <li><a title="@album.getTitle() (@album.getCount())" href="/album/@album.getServiceIndex()/@album.getId()"><img src="@album.getThumbnailUrl()" alt="@album.getTitle() (@album.getCount())"/></a></li>

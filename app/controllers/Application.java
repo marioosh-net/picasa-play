@@ -23,7 +23,8 @@ import com.google.gdata.util.ServiceException;
 
 public class Application extends Controller {
 	
-	static final String THUMB_SIZE = "104c";
+	static final String THUMB_SIZE = "104c,800";
+	static final String IMG_SIZE = "800";
 
 	static private List<PicasawebService> myServices = new ArrayList<PicasawebService>();
 	static private PicasawebService myService;
@@ -82,7 +83,7 @@ public class Application extends Controller {
 
 	public static Result photos(int serviceIndex, String albumId) throws IOException, ServiceException {
 		myService = myServices.get(serviceIndex);
-		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo&thumbsize="+THUMB_SIZE+"&imgsize=800");
+		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo&thumbsize="+THUMB_SIZE+"&imgmax="+IMG_SIZE);
 		AlbumFeed feed = myService.getFeed(feedUrl, AlbumFeed.class);
 		return ok(photos.render(feed));
 	}
