@@ -50,7 +50,7 @@ public class Application extends Controller {
 	}
 
 	public static Result photos(String albumId) throws IOException, ServiceException {		
-		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo&thumbsize=72c");
+		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo&thumbsize=72c&imgsize=800");
 		AlbumFeed feed = myService.getFeed(feedUrl, AlbumFeed.class);			
 		return ok(photos.render(feed.getPhotoEntries()));
 	}
