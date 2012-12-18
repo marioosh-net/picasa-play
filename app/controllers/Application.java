@@ -3,6 +3,8 @@ package controllers;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import model.Album;
 import play.Logger;
@@ -15,6 +17,7 @@ import com.google.gdata.client.http.AuthSubUtil;
 import com.google.gdata.client.photos.PicasawebService;
 import com.google.gdata.data.photos.AlbumEntry;
 import com.google.gdata.data.photos.AlbumFeed;
+import com.google.gdata.data.photos.PhotoEntry;
 import com.google.gdata.data.photos.UserFeed;
 import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.util.ServiceException;
@@ -68,13 +71,18 @@ public class Application extends Controller {
 			}
 		i++;
 		}
+		Collections.sort(l, new Comparator<Album>() {
+			@Override
+			public int compare(Album o1, Album o2) {
+				return o1.getTitle().compareTo(o2.getTitle());
+			}});
 		return ok(albums.render(l));
 	}
 
 	public static Result photos(int serviceIndex, String albumId) throws IOException, ServiceException {
 		myService = myServices.get(serviceIndex);
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo&thumbsize=72c&imgsize=800");
-		AlbumFeed feed = myService.getFeed(feedUrl, AlbumFeed.class);			
+		AlbumFeed feed = myService.getFeed(feedUrl, AlbumFeed.class);
 		return ok(photos.render(feed.getPhotoEntries()));
 	}
 }

@@ -1,6 +1,6 @@
 @(albums: List[model.Album])
 @main("Albums") {
-	<ul> 
+	<ul class="albums"> 
 	@for(album <- albums) {
 	  <li><a href="/album/@album.getServiceIndex()/@album.getId()">@album.getTitle() (@album.getCount())</a></li>
 	} 

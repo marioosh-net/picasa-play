@@ -2,8 +2,17 @@ li {
 	list-style: none;
 }
 
-.menu li {
+ul.menu li {
     list-style: none;
     display: inline;
     margin-right: 5px;
+}
+
+ul.photos li {
+	display: inline;
+	padding: 0px;
+	margin: 0px;
+}
+
+ul.albums li {
 }
