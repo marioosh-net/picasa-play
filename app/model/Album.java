@@ -4,10 +4,12 @@ package model;
 public class Album {
 	private String title;
 	private String id;
+	private int count;
 	
-	public Album(String id, String title) {
+	public Album(String id, String title, int count) {
 		this.id = id;
 		this.title = title;
+		this.count = count;
 	}
 
 	public String getTitle() {
@@ -26,6 +28,15 @@ public class Album {
 	
 	public void setId(String id) {
 		this.id = id;
+	}
+	
+	
+	public int getCount() {
+		return count;
+	}
+	
+	public void setCount(int count) {
+		this.count = count;
 	}
 	
 }

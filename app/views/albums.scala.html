@@ -2,7 +2,7 @@
 @main("Albums") {
 	<ul> 
 	@for(album <- albums) {
-	  <li><a href="/album/@album.getId()">@album.getTitle()</a></li>
+	  <li><a href="/album/@album.getId()">@album.getTitle() (@album.getCount())</a></li>
 	} 
 	</ul>
 }

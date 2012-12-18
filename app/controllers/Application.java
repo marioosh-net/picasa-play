@@ -35,7 +35,7 @@ public class Application extends Controller {
 		List<Album> l = new ArrayList<Album>();
 		for(AlbumEntry a: myUserFeed.getAlbumEntries()) {
 			String id = a.getId().substring(a.getId().lastIndexOf('/')+1);
-			l.add(new Album(id, a.getTitle().getPlainText()));
+			l.add(new Album(id, a.getTitle().getPlainText(), a.getPhotosUsed()));
 		}
 		return ok(albums.render(l));
 
@@ -50,7 +50,7 @@ public class Application extends Controller {
 	}
 
 	public static Result photos(String albumId) throws IOException, ServiceException {		
-		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId);
+		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo&thumbsize=72c");
 		AlbumFeed feed = myService.getFeed(feedUrl, AlbumFeed.class);			
 		return ok(photos.render(feed.getPhotoEntries()));
 	}
