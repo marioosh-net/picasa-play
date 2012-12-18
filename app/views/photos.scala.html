@@ -2,7 +2,7 @@
 @main("Photos") {
 	<ul class="photos"> 
 	@for(photo <- photos) {
-	  <li><a href="@photo.getMediaContents().get(0).getUrl()"><img alt="@photo.getTitle().getPlainText()" src="@photo.getMediaThumbnails().get(0).getUrl()"/></a></li>
+	  <li><a class="lightview" data-lightview-group="a@photo.getAlbumId()" href="@photo.getMediaContents().get(0).getUrl()"><img alt="@photo.getTitle().getPlainText()" src="@photo.getMediaThumbnails().get(0).getUrl()"/></a></li>
 	} 
 	</ul>
 }
