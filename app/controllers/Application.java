@@ -23,8 +23,8 @@ import com.google.gdata.util.ServiceException;
 
 public class Application extends Controller {
 	
-	static final String THUMB_SIZE = "104c,800";
-	static final String IMG_SIZE = "800";
+	static final String THUMB_SIZE = "104c,72c,800";
+	static final String IMG_SIZE = "1600";//"d";
 
 	static private List<PicasawebService> myServices = new ArrayList<PicasawebService>();
 	static private PicasawebService myService;
