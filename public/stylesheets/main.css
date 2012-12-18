@@ -1,9 +1,14 @@
+ul {
+    margin-left: 0px;
+    padding-left: 0em;
+}
+
 li {
-	list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
 ul.menu li {
-    list-style: none;
     display: inline;
     margin-right: 5px;
 }
@@ -15,4 +20,7 @@ ul.photos li {
 }
 
 ul.albums li {
+    display: inline;
+    padding: 0px;
+    margin: 0px;	
 }

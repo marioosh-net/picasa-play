@@ -6,12 +6,14 @@ public class Album {
 	private String id;
 	private int count;
 	private int serviceIndex;
+	private String thumbnailUrl;
 	
-	public Album(String id, String title, int count, int serviceIndex) {
+	public Album(String id, String title, String thumbnailUrl, int count, int serviceIndex) {
 		this.id = id;
 		this.title = title;
 		this.count = count;
 		this.serviceIndex = serviceIndex;
+		this.thumbnailUrl = thumbnailUrl;
 	}
 
 	public String getTitle() {
@@ -49,5 +51,14 @@ public class Album {
 	
 	public void setServiceIndex(int serviceIndex) {
 		this.serviceIndex = serviceIndex;
+	}
+	
+	
+	public String getThumbnailUrl() {
+		return thumbnailUrl;
+	}
+	
+	public void setThumbnailUrl(String thumbnailUrl) {
+		this.thumbnailUrl = thumbnailUrl;
 	}
 }
