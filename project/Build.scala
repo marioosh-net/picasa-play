@@ -16,9 +16,9 @@ object ApplicationBuild extends Build {
     )
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = JAVA).settings(
-      // Add your own project settings here      
-      // resolvers += "my" at "file://"+baseDirectory(_ / "repo")
-      resolvers += "my" at "file:///home/marioosh/git/play-starter/repo"
+      resolvers <+= baseDirectory { base => 
+        "my" at "file:///"+base.getAbsolutePath+"/repo"
+      }
     )
 
 }

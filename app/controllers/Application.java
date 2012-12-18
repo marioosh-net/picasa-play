@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import model.Album;
+import com.google.gdata.client.http.AuthSubUtil;
 import com.google.gdata.client.photos.PicasawebService;
 import com.google.gdata.data.photos.AlbumEntry;
 import com.google.gdata.data.photos.AlbumFeed;
@@ -26,6 +27,24 @@ public class Application extends Controller {
 		} catch (AuthenticationException e) {
 			e.printStackTrace();
 		}		
+	}
+	
+	public static Result auth() {
+		myService = new PicasawebService("testApp");
+		String requestUrl =
+			    AuthSubUtil.getRequestUrl("http://localhost:9000/token",
+			                        "https://picasaweb.google.com/data/",
+			                        false,
+			                        true);
+		
+		Logger.info(requestUrl);
+		return redirect(requestUrl);
+	}
+	
+	public static Result token(String sessionToken) {
+		Logger.info("TOKEN:" + sessionToken);
+		myService.setAuthSubToken(sessionToken, null);
+		return ok(token.render(sessionToken));
 	}
 	
 	public static Result albums() throws IOException, ServiceException {
