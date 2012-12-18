@@ -1,5 +1,6 @@
 package controllers;
 
+import static play.Logger.info;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -7,7 +8,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import model.Album;
-import static play.Logger.*;
 import play.mvc.Controller;
 import play.mvc.Result;
 import views.html.albums;
@@ -17,7 +17,6 @@ import com.google.gdata.client.http.AuthSubUtil;
 import com.google.gdata.client.photos.PicasawebService;
 import com.google.gdata.data.photos.AlbumEntry;
 import com.google.gdata.data.photos.AlbumFeed;
-import com.google.gdata.data.photos.PhotoEntry;
 import com.google.gdata.data.photos.UserFeed;
 import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.util.ServiceException;
@@ -29,16 +28,16 @@ public class Application extends Controller {
 	
 	static {
 		try {
-			// waclaw.bezimienny@gmail.com
-			PicasawebService myService = new PicasawebService("testApp");			
-			myService.setUserCredentials("waclaw.bezimienny@gmail.com", "b7FEvW4mSy9C");
-			myServices.add(myService);
-
-			// waclaw.bezimienny2@gmail.com			
-			myService = new PicasawebService("testApp");			
-			myService.setUserCredentials("waclaw.bezimienny2@gmail.com", "b7FEvW4mSy9C");
-			myServices.add(myService);
-
+			String[][] accounts = new String[][]{
+					{"waclaw.bezimienny@gmail.com", "b7FEvW4mSy9C"},
+					{"waclaw.bezimienny2@gmail.com", "b7FEvW4mSy9C"}
+					};
+			
+			for(String[] account: accounts) {
+				PicasawebService myService = new PicasawebService("testApp");			
+				myService.setUserCredentials(account[0], account[1]);
+				myServices.add(myService);
+			}
 			
 		} catch (AuthenticationException e) {
 			e.printStackTrace();
