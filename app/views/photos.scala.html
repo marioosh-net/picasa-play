@@ -1,9 +1,33 @@
-@(feed: com.google.gdata.data.photos.AlbumFeed)
+@(feed: com.google.gdata.data.photos.AlbumFeed, photos: List[com.google.gdata.data.photos.PhotoEntry], albums: List[model.Album])
 @main("Photos") {
-    <ul class="menu"><li><a href="/">Home</a></li>&nbsp;&raquo;&nbsp;<li>@feed.getTitle().getPlainText()</li></ul>
-	<ul class="photos"> 
-	@for(photo <- feed.getPhotoEntries()) {
-	  <li><a class="lightview" data-lightview-group="a@photo.getAlbumId()" data-lightview-title="<a href='@photo.getMediaContents().get(0).getUrl()' target='_blank'>@photo.getTitle().getPlainText()</a>" data-lightview-group-options="controls: 'thumbnails'" data-lightview-options="thumbnail: '@photo.getMediaThumbnails().get(1).getUrl()'" href="@photo.getMediaThumbnails().get(2).getUrl()"><img alt="@photo.getTitle().getPlainText()" src="@photo.getMediaThumbnails().get(0).getUrl()"/></a></li>
-	} 
-	</ul>
+	@albumslist(albums)
+} {
+    <div id="photos-header">
+    <div class="left album-title">
+        <a href="/">albumy</a>&nbsp;&raquo;&nbsp; <a href="#">@feed.getTitle().getPlainText()</a>
+    </div>
+    <div class="right">
+    </div>
+    <div class="clear"></div>
+</div>
+
+    @*
+    <ul class="photos"> 
+    @for(photo <- photos) {
+      <li><a class="lightview" data-lightview-group="a@photo.getAlbumId()" data-lightview-title="<a href='@photo.getMediaContents().get(0).getUrl()' target='_blank'>@photo.getTitle().getPlainText()</a>" data-lightview-group-options="controls: 'thumbnails'" data-lightview-options="thumbnail: '@photo.getMediaThumbnails().get(1).getUrl()'" href="@photo.getMediaThumbnails().get(2).getUrl()"><img alt="@photo.getTitle().getPlainText()" src="@photo.getMediaThumbnails().get(0).getUrl()"/></a></li>
+    } 
+    </ul>
+    *@
+    
+    @for(i <- photos.indices) {
+        <div id="th@i" class="thumb_box" >
+            <a class="lightview" data-lightview-group="a@photos(i).getAlbumId()" data-lightview-title="<a href='@photos(i).getMediaContents().get(0).getUrl()' target='_blank'>@photos(i).getTitle().getPlainText()</a>" data-lightview-group-options="controls: 'thumbnails'" data-lightview-options="thumbnail: '@photos(i).getMediaThumbnails().get(1).getUrl()'" href="@photos(i).getMediaThumbnails().get(2).getUrl()">
+	            <div id="t@i" class="thumb" style="background-image: url('@routes.Assets.at("images/ajax-loader7.gif")'); background-position: 50% 50%; "></div>
+	            <div id="u@photos(i).hashCode()" class="thumb ttip" onmouseover="exif(@photos(i).hashCode());" style="float: none; display: none; background-image: url(@photos(i).getMediaThumbnails().get(0).getUrl()); "></div>
+	            <img style="display: none;" src="@photos(i).getMediaThumbnails().get(0).getUrl()" onload="jQuery('#t@i').hide(); jQuery('#u@photos(i).hashCode()').show();"/>
+            </a>
+            <a href="@photos(i).getMediaThumbnails().get(2).getUrl()" title="Otwórz w nowym oknie" target="_blank"><img class="full" src="@routes.Assets.at("images/n3.png")" alt="full size"></a>
+        </div>
+    
+    }    
 }

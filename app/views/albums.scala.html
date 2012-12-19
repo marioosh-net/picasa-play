@@ -1,9 +1,34 @@
 @(albums: List[model.Album])
 @main("Albums") {
-    <ul class="menu"><li><a href="/">Home</a></li></ul>
-	<ul class="albums"> 
-	@for(album <- albums) {
-	  <li><a title="@album.getTitle() (@album.getCount())" href="/album/@album.getServiceIndex()/@album.getId()"><img src="@album.getThumbnailUrl()" alt="@album.getTitle() (@album.getCount())"/></a></li>
-	} 
-	</ul>
+    @albumslist(albums)
+} {    
+	<div id="mini">
+        <div id="photos">
+            <div class="covers">
+                <div class="thumbs">
+                
+                @for(i <- albums.indices) {
+		            <div class="thumb_box" title="@albums(i).getTitle()">
+		                <a href="/album/@albums(i).getServiceIndex()/@albums(i).getId()" class="thumb_link">
+		                    <div id="t@i" class="thumb" style="background-image: url('@routes.Assets.at("images/ajax-loader7.gif")'); background-position: 50% 50%; "></div>
+		                    <div id="u@i" class="thumb thumb_box_cover" style="display: none; float: none; background-image: url('@albums(i).getThumbnailUrl()');"></div>
+		                    <img style="display: none;" src="@albums(i).getThumbnailUrl()" onload="jQuery('#t@i').hide(); jQuery('#u@i').show();">
+		                </a>
+		            </div>
+                    @*
+		            <div class="thumb_box" title="2012_07_08_basenik_na_balkonie">
+		                <a href="#" onclick="jQuery('.tooltip').remove(); jQuery('#photos').load('/gallery/app/photos/643/1');" class="thumb_link">
+		                    <div id="t0" class="thumb" style="background-image: url(https://marioosh.net/gallery/images/ajax-loader7.gif); display: none; background-position: 50% 50%;"></div>
+		                    <div id="u0" class="thumb thumb_box_cover" style="float: none; background-image: url(https://marioosh.net/gallery/app/a/643/cover);"></div>
+		                    <img style="display: none;" src="/gallery/app/a/643/cover" onload="jQuery('#t0').hide(); jQuery('#u0').show();">
+		                </a>
+		            </div>
+		            *@
+                }
+                </div>
+                <div style="clear: both;"></div>
+            </div>
+        </div>          
+    </div>
+
 }

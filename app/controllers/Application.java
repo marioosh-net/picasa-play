@@ -28,6 +28,7 @@ public class Application extends Controller {
 
 	static private List<PicasawebService> myServices = new ArrayList<PicasawebService>();
 	static private PicasawebService myService;
+	static private List<Album> l;
 	
 	static {
 		try {
@@ -63,7 +64,7 @@ public class Application extends Controller {
 	public static Result albums() throws IOException, ServiceException {
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album&thumbsize="+THUMB_SIZE);
 		
-		List<Album> l = new ArrayList<Album>();		
+		l = new ArrayList<Album>();		
 		int i = 0;
 		for(PicasawebService myService: myServices) {
 			UserFeed myUserFeed = myService.getFeed(feedUrl, UserFeed.class);
@@ -85,6 +86,9 @@ public class Application extends Controller {
 		myService = myServices.get(serviceIndex);
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo&thumbsize="+THUMB_SIZE+"&imgmax="+IMG_SIZE);
 		AlbumFeed feed = myService.getFeed(feedUrl, AlbumFeed.class);
-		return ok(photos.render(feed));
+		if(l == null) {
+			albums();
+		}
+		return ok(photos.render(feed, feed.getPhotoEntries(), l));
 	}
 }

@@ -1,0 +1,21 @@
+@(albums: List[model.Album])
+    @*
+    <ul class="albums"> 
+    @for(album <- albums) {
+      <li><a title="@album.getTitle() (@album.getCount())" href="/album/@album.getServiceIndex()/@album.getId()"><img src="@album.getThumbnailUrl()" alt="@album.getTitle() (@album.getCount())"/></a></li>
+    } 
+    </ul>
+    *@
+
+    <div id="albums">
+	    <div class="frame-albums">    
+           @for(album <- albums) {
+		    <a href="/album/@album.getServiceIndex()/@album.getId()" title="@album.getTitle()" >
+		        <div class="oneset oneset_@album.getId()">
+		            @album.getTitle()<span class="counts">(@album.getCount())</span>
+		        </div>
+		     </a>
+		    <span class="subalbums" id="subalbums_@album.getId()"/>
+           }
+	    </div>
+    </div>
