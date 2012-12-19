@@ -83,12 +83,12 @@ public class Application extends Controller {
 				return o1.getTitle().compareTo(o2.getTitle());
 			}});
 		
-		// albumsPartial();
+		albumsPartial();
 		return ok(albums.render(l));
 	}
 	
 	public static Result albumsPartial() throws IOException, ServiceException {
-		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album&thumbsize="+THUMB_SIZE+"&fields=entry(title,id,link)");
+		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album&thumbsize="+THUMB_SIZE+"&fields=entry(title,id,gphoto:numphotos,media:group)");
 		Query albumQuery = new Query(feedUrl);
 		
 		l = new ArrayList<Album>();		
@@ -100,6 +100,13 @@ public class Application extends Controller {
 				for (GphotoEntry partialEntry : myUserFeed.getEntries()) {
 					info(partialEntry+"");
 					info(partialEntry.getLinks()+"");
+					info(partialEntry.getTitle().getPlainText()+"");
+					info(partialEntry.getId()+"");
+					info(partialEntry.getSelectedFields());
+					
+					String id1 = partialEntry.getId().substring(partialEntry.getId().lastIndexOf('/')+1);
+					l.add(new Album(id1, partialEntry.getTitle().getPlainText(), "", 0, i));
+					
 					for(Object l: partialEntry.getLinks()) {
 						Link l1 = (Link) l;
 						info(l1.getHref());
