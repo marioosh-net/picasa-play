@@ -13,10 +13,13 @@ import play.mvc.Result;
 import views.html.albums;
 import views.html.photos;
 import views.html.token;
+import com.google.gdata.client.Query;
 import com.google.gdata.client.http.AuthSubUtil;
 import com.google.gdata.client.photos.PicasawebService;
+import com.google.gdata.data.Link;
 import com.google.gdata.data.photos.AlbumEntry;
 import com.google.gdata.data.photos.AlbumFeed;
+import com.google.gdata.data.photos.GphotoEntry;
 import com.google.gdata.data.photos.UserFeed;
 import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.util.ServiceException;
@@ -79,12 +82,50 @@ public class Application extends Controller {
 			public int compare(Album o1, Album o2) {
 				return o1.getTitle().compareTo(o2.getTitle());
 			}});
+		
+		// albumsPartial();
 		return ok(albums.render(l));
 	}
-
+	
+	public static Result albumsPartial() throws IOException, ServiceException {
+		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album&thumbsize="+THUMB_SIZE+"&fields=entry(title,id,link)");
+		Query albumQuery = new Query(feedUrl);
+		
+		l = new ArrayList<Album>();		
+		int i = 0;
+		for(PicasawebService myService: myServices) {
+			try {
+				UserFeed myUserFeed = myService.query(albumQuery, UserFeed.class);
+				info(myUserFeed.getAlbumEntries()+"");
+				for (GphotoEntry partialEntry : myUserFeed.getEntries()) {
+					info(partialEntry+"");
+					info(partialEntry.getLinks()+"");
+					for(Object l: partialEntry.getLinks()) {
+						Link l1 = (Link) l;
+						info(l1.getHref());
+					}
+					  if (partialEntry instanceof AlbumEntry) {
+						  AlbumEntry a = (AlbumEntry) partialEntry;
+							String id = a.getId().substring(a.getId().lastIndexOf('/')+1);
+							l.add(new Album(id, a.getTitle().getPlainText(), a.getMediaThumbnails().get(0).getUrl(), a.getPhotosUsed(), i));
+					  }
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			i++;
+		}
+		Collections.sort(l, new Comparator<Album>() {
+			@Override
+			public int compare(Album o1, Album o2) {
+				return o1.getTitle().compareTo(o2.getTitle());
+			}});
+		return ok(albums.render(l));
+	}
+	
 	public static Result photos(int serviceIndex, String albumId) throws IOException, ServiceException {
 		myService = myServices.get(serviceIndex);
-		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo&thumbsize="+THUMB_SIZE+"&imgmax="+IMG_SIZE);
+		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo,tag&thumbsize="+THUMB_SIZE+"&imgmax="+IMG_SIZE);
 		AlbumFeed feed = myService.getFeed(feedUrl, AlbumFeed.class);
 		if(l == null) {
 			albums();
