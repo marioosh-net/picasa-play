@@ -21,7 +21,7 @@
     
     @for(i <- photos.indices) {
         <div id="th@i" class="thumb_box" >
-            <a class="lightview" data-lightview-group="a@photos(i).getAlbumId()" data-lightview-title="<a href='@photos(i).getContent()' target='_blank'>@photos(i).getTitle()</a>" data-lightview-group-options="controls: 'thumbnails'" data-lightview-options="thumbnail: '@photos(i).getThumbs().get(1)'" href="@photos(i).getThumbs().get(2)">
+            <a class="lightview" data-lightview-group="a@photos(i).getAlbumId()" data-lightview-title="<a href='@photos(i).getContent()' target='_blank'>@photos(i).getTitle()</a>" data-lightview-group-options="controls: 'thumbnails', slideshow: 3000" data-lightview-options="thumbnail: '@photos(i).getThumbs().get(1)'" href="@photos(i).getThumbs().get(2)">
 	            <div id="t@i" class="thumb" style="background-image: url('@routes.Assets.at("images/ajax-loader7.gif")'); background-position: 50% 50%; "></div>
 	            <div id="u@photos(i).hashCode()" class="thumb ttip" @*onmouseover="exif(@photos(i).hashCode());"*@ style="float: none; display: none; background-image: url(@photos(i).getThumbs().get(0)); "></div>
 	            <img style="display: none;" src="@photos(i).getThumbs().get(0)" onload="jQuery('#t@i').hide(); jQuery('#u@photos(i).hashCode()').show();"/>

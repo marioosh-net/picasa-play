@@ -120,10 +120,10 @@ public class Application extends Controller {
 		return ok(albums.render(l));
 	}
 	
-	public static Result photos(int serviceIndex, String albumId) throws IOException, ServiceException {
+	public static Result photos(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
 		info("Getting photos list...");
 		myService = myServices.get(serviceIndex);
-		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo,tag&thumbsize="+THUMB_SIZE+"&imgmax="+IMG_SIZE+"&fields=title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:content,media:group/media:thumbnail)");
+		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo,tag&thumbsize="+THUMB_SIZE+"&imgmax="+IMG_SIZE+"&fields=title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:content,media:group/media:thumbnail)"+(max!= 0 ? "&max-results="+max: "")+(start!= 0 ? "&start-index="+start: ""));
 		Query photosQuery = new Query(feedUrl);
 		
 		// AlbumFeed feed = myService.getFeed(feedUrl, AlbumFeed.class);		
