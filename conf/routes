@@ -3,7 +3,7 @@
 # ~~~~
 
 # Home page
-GET     /                                           controllers.Application.albums()
+GET     /                                           controllers.Application.albumsPartial()
 GET     /album/:serviceIndex/:albumId               controllers.Application.photos(serviceIndex:Int, albumId)
 GET     /auth                                       controllers.Application.auth()
 GET     /token                                      controllers.Application.token(token)
