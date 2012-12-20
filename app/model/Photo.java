@@ -8,13 +8,15 @@ public class Photo {
 	private String id;
 	private List<String> thumbs;
 	private String content;
+	private String albumId;
 	
-	public Photo(String title, String id, List<String> thumbs, String content) {
+	public Photo(String title, String id, List<String> thumbs, String content, String albumId) {
 		super();
 		this.title = title;
 		this.id = id;
 		this.thumbs = thumbs;
 		this.content = content;
+		this.albumId = albumId;
 	}
 
 	public String getTitle() {
@@ -49,5 +51,13 @@ public class Photo {
 		this.content = content;
 	}
 
+	
+	public String getAlbumId() {
+		return albumId;
+	}
+	
+	public void setAlbumId(String albumId) {
+		this.albumId = albumId;
+	}
 	
 }

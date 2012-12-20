@@ -22,6 +22,7 @@ import com.google.gdata.client.photos.PicasawebService;
 import com.google.gdata.data.media.mediarss.MediaGroup;
 import com.google.gdata.data.photos.AlbumEntry;
 import com.google.gdata.data.photos.AlbumFeed;
+import com.google.gdata.data.photos.GphotoAlbumId;
 import com.google.gdata.data.photos.GphotoEntry;
 import com.google.gdata.data.photos.GphotoPhotosUsed;
 import com.google.gdata.data.photos.PhotoEntry;
@@ -122,17 +123,19 @@ public class Application extends Controller {
 	public static Result photos(int serviceIndex, String albumId) throws IOException, ServiceException {
 		info("Getting photos list...");
 		myService = myServices.get(serviceIndex);
-		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo,tag&thumbsize="+THUMB_SIZE+"&imgmax="+IMG_SIZE+"&fields=title,entry(title,id,gphoto:id,gphoto:numphotos,media:group/media:content,media:group/media:thumbnail)");
+		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo,tag&thumbsize="+THUMB_SIZE+"&imgmax="+IMG_SIZE+"&fields=title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:content,media:group/media:thumbnail)");
 		Query photosQuery = new Query(feedUrl);
 		
 		// AlbumFeed feed = myService.getFeed(feedUrl, AlbumFeed.class);		
 		AlbumFeed feed = myService.query(photosQuery, AlbumFeed.class);
-		describe(feed.getEntries().get(0));
+		// describe(feed.getEntries().get(0));
 		if(l == null) {
 			albumsPartial();
 		}
 		List<Photo> lp = new ArrayList<Photo>();
 		for(GphotoEntry<PhotoEntry> e: feed.getEntries()) {
+			describe(e);
+			info("CLASS:"+e);
 			debug("EXTENSIONS:" + e.getExtensions()+"");
 			MediaGroup g = e.getExtension(MediaGroup.class);
 			if(g != null) {
@@ -142,7 +145,7 @@ public class Application extends Controller {
 				debug("thumbs:"+g.getThumbnails().get(1).getUrl());
 				debug("thumbs:"+g.getThumbnails().get(2).getUrl());
 				debug("orig:"+g.getContents().get(0).getUrl());
-				lp.add(new Photo(e.getTitle().getPlainText(), e.getId(), Arrays.asList(new String[]{g.getThumbnails().get(0).getUrl(), g.getThumbnails().get(1).getUrl(), g.getThumbnails().get(2).getUrl()}), g.getContents().get(0).getUrl()));
+				lp.add(new Photo(e.getTitle().getPlainText(), e.getId(), Arrays.asList(new String[]{g.getThumbnails().get(0).getUrl(), g.getThumbnails().get(1).getUrl(), g.getThumbnails().get(2).getUrl()}), g.getContents().get(0).getUrl(), e.getExtension(GphotoAlbumId.class).getValue()));
 			}
 		}
 		debug("TITLE:"+feed.getTitle()+"");
@@ -151,6 +154,7 @@ public class Application extends Controller {
 	}
 	
 	private static void describe(Object o) {
+		debug("DESCRIBE "+o+" --------------- START");
 		BeanMap m = new BeanMap(o);
 		for(Object k: m.keySet()) {
 			String key = (String) k;
@@ -160,5 +164,6 @@ public class Application extends Controller {
 				warn(key + " retrieving error");
 			}
 		}
+		debug("DESCRIBE "+o+" ---------------- END");
 	}
 }
