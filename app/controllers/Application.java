@@ -1,12 +1,16 @@
 package controllers;
 
 import static play.Logger.*;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Properties;
 import org.apache.commons.beanutils.BeanMap;
 import model.Album;
 import model.Photo;
@@ -41,18 +45,27 @@ public class Application extends Controller {
 	
 	static {
 		try {
-			String[][] accounts = new String[][]{
-					{"waclaw.bezimienny@gmail.com", "b7FEvW4mSy9C"},
-					{"waclaw.bezimienny2@gmail.com", "b7FEvW4mSy9C"}
-					};
+			Properties p = new Properties();
+			InputStream in =  Application.class.getResourceAsStream("/resources/accounts.properties");
+			if(in != null) {
+				p.load(in);
+				in.close();
 			
-			for(String[] account: accounts) {
-				PicasawebService myService = new PicasawebService("testApp");			
-				myService.setUserCredentials(account[0], account[1]);
-				myServices.add(myService);
+				Enumeration e = p.propertyNames();
+				List<String[]> l = new ArrayList<String[]>();
+				while(e.hasMoreElements()) {
+					String k = (String) e.nextElement();
+					l.add(new String[]{k+"", p.getProperty(k)});
+					PicasawebService myService = new PicasawebService("testApp");			
+					myService.setUserCredentials(k+"", p.getProperty(k));
+					myServices.add(myService);
+				}
+			
+			} else {
+				error("null inputstream");
 			}
 			
-		} catch (AuthenticationException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}		
 	}
