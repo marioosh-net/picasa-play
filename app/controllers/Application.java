@@ -1,7 +1,8 @@
 package controllers;
 
-import static play.Logger.*;
-import java.io.FileInputStream;
+import static play.Logger.debug;
+import static play.Logger.error;
+import static play.Logger.info;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -11,9 +12,9 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
-import org.apache.commons.beanutils.BeanMap;
 import model.Album;
 import model.Photo;
+import model.Utils;
 import play.mvc.Controller;
 import play.mvc.Result;
 import scala.actors.threadpool.Arrays;
@@ -31,7 +32,6 @@ import com.google.gdata.data.photos.GphotoEntry;
 import com.google.gdata.data.photos.GphotoPhotosUsed;
 import com.google.gdata.data.photos.PhotoEntry;
 import com.google.gdata.data.photos.UserFeed;
-import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.util.ServiceException;
 
 public class Application extends Controller {
@@ -39,7 +39,7 @@ public class Application extends Controller {
 	static final String THUMB_SIZE = "104c,72c,800";
 	static final String IMG_SIZE = "1600";//"d";
 
-	static private List<PicasawebService> myServices = new ArrayList<PicasawebService>();
+	static public List<PicasawebService> myServices = new ArrayList<PicasawebService>();
 	static private PicasawebService myService;
 	static private List<Album> l;
 	
@@ -147,7 +147,7 @@ public class Application extends Controller {
 		}
 		List<Photo> lp = new ArrayList<Photo>();
 		for(GphotoEntry<PhotoEntry> e: feed.getEntries()) {
-			describe(e);
+			Utils.describe(e);
 			info("CLASS:"+e);
 			debug("EXTENSIONS:" + e.getExtensions()+"");
 			MediaGroup g = e.getExtension(MediaGroup.class);
@@ -164,19 +164,5 @@ public class Application extends Controller {
 		debug("TITLE:"+feed.getTitle()+"");
 		// return ok(photos.render(feed, (List<GphotoEntry<PhotoEntry>>)feed.getEntries<PhotoEntry>(), l));
 		return ok(photos.render(feed, lp, l));
-	}
-	
-	private static void describe(Object o) {
-		debug("DESCRIBE "+o+" --------------- START");
-		BeanMap m = new BeanMap(o);
-		for(Object k: m.keySet()) {
-			String key = (String) k;
-			try {
-				debug(key+ " = " + m.get(key)+"");
-			} catch (Exception e) {
-				warn(key + " retrieving error");
-			}
-		}
-		debug("DESCRIBE "+o+" ---------------- END");
 	}
 }
