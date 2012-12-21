@@ -48,7 +48,7 @@ public class Test extends Controller {
 		return redirect("/?message=albums deleted");
 	}
 	
-	public static Result loadTestData(int count) {
+	public static Result loadTestData(int count, boolean create) {
 		String address = "http://www.impawards.com/2012/std.html";
 		String outputDir = "data";
 		
@@ -86,15 +86,22 @@ public class Test extends Controller {
 					Element font = tdWithTitle.getFirstElement();
 					String name = new TextExtractor(font.getContent()).toString();
 
-					System.out.println("Output path: "+new File(outputDir).getAbsolutePath());
-					
-					URL postUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default");
-					AlbumEntry myAlbum = new AlbumEntry();
-					myAlbum.setTitle(new PlainTextConstruct(name));
-					int index = random.nextInt(2);
-					AlbumEntry insertedEntry = Application.myServices.get(index).insert(postUrl, myAlbum);
-					// Utils.describe(insertedEntry);
-					String albumId = insertedEntry.getId().substring(insertedEntry.getId().lastIndexOf('/')+1);
+					int index = random.nextInt(Application.myServices.size());					
+					String albumId = "";
+					if(create) {
+						info("Creating album '"+name+"' ...");
+						URL postUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default");
+						AlbumEntry myAlbum = new AlbumEntry();
+						myAlbum.setTitle(new PlainTextConstruct(name));
+						AlbumEntry insertedEntry = Application.myServices.get(index).insert(postUrl, myAlbum);
+						// Utils.describe(insertedEntry);
+						albumId = insertedEntry.getId().substring(insertedEntry.getId().lastIndexOf('/')+1);
+					} else {
+						List<Album> l = Application.getAlbums();
+						Album a = l.get(random.nextInt(l.size()));
+						albumId = a.getId();
+						index = a.getServiceIndex();
+					}
 					
 					URL albumPostUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId);
 					
@@ -132,7 +139,7 @@ public class Test extends Controller {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			return play.mvc.Results.internalServerError(e.getMessage());
+			return ok(e.getMessage() != null ? e.getMessage() : e+"");
 		}
 		
 	}

@@ -5,6 +5,7 @@ import static play.Logger.error;
 import static play.Logger.info;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,10 +42,10 @@ public class Application extends Controller {
 
 	static public List<PicasawebService> myServices = new ArrayList<PicasawebService>();
 	static private PicasawebService myService;
-	static private List<Album> l;
 	
 	static {
 		try {
+			info("Loading services...");
 			Properties p = new Properties();
 			InputStream in =  Application.class.getResourceAsStream("/resources/accounts.properties");
 			if(in != null) {
@@ -86,7 +87,7 @@ public class Application extends Controller {
 	public static Result albums(String message) throws IOException, ServiceException {
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album&thumbsize="+THUMB_SIZE);
 		
-		l = new ArrayList<Album>();		
+		List<Album> l = new ArrayList<Album>();		
 		int i = 0;
 		for(PicasawebService s: myServices) {
 			UserFeed feed = s.getFeed(feedUrl, UserFeed.class);
@@ -107,11 +108,15 @@ public class Application extends Controller {
 	}
 	
 	public static Result albumsPartial(String message) throws IOException, ServiceException {
+		return ok(albums.render(getAlbums(), message));
+	}
+	
+	public static List<Album> getAlbums() throws MalformedURLException {
 		info("Getting albums list...");
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album&thumbsize="+THUMB_SIZE+"&fields=entry(title,id,gphoto:id,gphoto:numphotos,media:group/media:thumbnail)");
 		Query albumQuery = new Query(feedUrl);
 		
-		l = new ArrayList<Album>();		
+		List<Album> l = new ArrayList<Album>();		
 		int i = 0;
 		for(PicasawebService s: myServices) {
 			try {
@@ -130,7 +135,7 @@ public class Application extends Controller {
 			public int compare(Album o1, Album o2) {
 				return o1.getTitle().compareTo(o2.getTitle());
 			}});
-		return ok(albums.render(l, message));
+		return l;
 	}
 	
 	public static Result photos(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
@@ -142,27 +147,25 @@ public class Application extends Controller {
 		// AlbumFeed feed = myService.getFeed(feedUrl, AlbumFeed.class);		
 		AlbumFeed feed = myService.query(photosQuery, AlbumFeed.class);
 		// describe(feed.getEntries().get(0));
-		if(l == null) {
-			albumsPartial(null);
-		}
 		List<Photo> lp = new ArrayList<Photo>();
 		for(GphotoEntry<PhotoEntry> e: feed.getEntries()) {
-			Utils.describe(e);
-			info("CLASS:"+e);
-			debug("EXTENSIONS:" + e.getExtensions()+"");
+			// Utils.describe(e);
+			// debug("EXTENSIONS:" + e.getExtensions()+"");
 			MediaGroup g = e.getExtension(MediaGroup.class);
 			if(g != null) {
+				/*
 				debug(g.getContents().size()+"");
 				debug(g.getThumbnails().size()+"");
 				debug("thumbs:"+g.getThumbnails().get(0).getUrl());
 				debug("thumbs:"+g.getThumbnails().get(1).getUrl());
 				debug("thumbs:"+g.getThumbnails().get(2).getUrl());
 				debug("orig:"+g.getContents().get(0).getUrl());
+				*/
 				lp.add(new Photo(e.getTitle().getPlainText(), e.getId(), Arrays.asList(new String[]{g.getThumbnails().get(0).getUrl(), g.getThumbnails().get(1).getUrl(), g.getThumbnails().get(2).getUrl()}), g.getContents().get(0).getUrl(), e.getExtension(GphotoAlbumId.class).getValue()));
 			}
 		}
-		debug("TITLE:"+feed.getTitle()+"");
+		// debug("TITLE:"+feed.getTitle()+"");
 		// return ok(photos.render(feed, (List<GphotoEntry<PhotoEntry>>)feed.getEntries<PhotoEntry>(), l));
-		return ok(photos.render(feed, lp, l));
+		return ok(photos.render(feed, lp, getAlbums()));
 	}
 }
