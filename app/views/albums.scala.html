@@ -1,5 +1,5 @@
-@(albums: List[model.Album])
-@main("Albums") {
+@(albums: List[model.Album], message: String)
+@main("Albums", message) {
     @albumslist(albums)
 } {    
 	<div id="mini">

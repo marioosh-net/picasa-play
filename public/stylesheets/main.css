@@ -820,6 +820,7 @@ a.inactive {
 ul {
     margin-left: 0px;
     padding-left: 0em;
+    list-style: none;
 }
 
 li {
@@ -842,4 +843,8 @@ ul.albums li {
     display: inline;
     padding: 0px;
     margin: 0px;	
+}
+div.message {
+	color: #fff;
+	font-size: 1.2em; 
 }

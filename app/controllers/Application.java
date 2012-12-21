@@ -83,7 +83,7 @@ public class Application extends Controller {
 		return ok(token.render(sessionToken));
 	}
 	
-	public static Result albums() throws IOException, ServiceException {
+	public static Result albums(String message) throws IOException, ServiceException {
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album&thumbsize="+THUMB_SIZE);
 		
 		l = new ArrayList<Album>();		
@@ -102,11 +102,11 @@ public class Application extends Controller {
 				return o1.getTitle().compareTo(o2.getTitle());
 			}});
 		
-		albumsPartial();
-		return ok(albums.render(l));
+		albumsPartial(null);
+		return ok(albums.render(l, message));
 	}
 	
-	public static Result albumsPartial() throws IOException, ServiceException {
+	public static Result albumsPartial(String message) throws IOException, ServiceException {
 		info("Getting albums list...");
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album&thumbsize="+THUMB_SIZE+"&fields=entry(title,id,gphoto:id,gphoto:numphotos,media:group/media:thumbnail)");
 		Query albumQuery = new Query(feedUrl);
@@ -130,7 +130,7 @@ public class Application extends Controller {
 			public int compare(Album o1, Album o2) {
 				return o1.getTitle().compareTo(o2.getTitle());
 			}});
-		return ok(albums.render(l));
+		return ok(albums.render(l, message));
 	}
 	
 	public static Result photos(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
@@ -143,7 +143,7 @@ public class Application extends Controller {
 		AlbumFeed feed = myService.query(photosQuery, AlbumFeed.class);
 		// describe(feed.getEntries().get(0));
 		if(l == null) {
-			albumsPartial();
+			albumsPartial(null);
 		}
 		List<Photo> lp = new ArrayList<Photo>();
 		for(GphotoEntry<PhotoEntry> e: feed.getEntries()) {

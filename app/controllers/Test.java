@@ -45,11 +45,11 @@ public class Test extends Controller {
 		} catch (Exception e) {
 			return play.mvc.Results.internalServerError(e.getMessage());
 		}
-		return redirect("/");
+		return redirect("/?message=albums deleted");
 	}
 	
 	public static Result loadTestData(int count) {
-		String address = "http://www.impawards.com/2010/std.html";
+		String address = "http://www.impawards.com/2012/std.html";
 		String outputDir = "data";
 		
 		// obrazki
@@ -92,9 +92,8 @@ public class Test extends Controller {
 					AlbumEntry myAlbum = new AlbumEntry();
 					myAlbum.setTitle(new PlainTextConstruct(name));
 					int index = random.nextInt(2);
-					info("INDEX: "+index);
 					AlbumEntry insertedEntry = Application.myServices.get(index).insert(postUrl, myAlbum);
-					Utils.describe(insertedEntry);
+					// Utils.describe(insertedEntry);
 					String albumId = insertedEntry.getId().substring(insertedEntry.getId().lastIndexOf('/')+1);
 					
 					URL albumPostUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId);
@@ -128,7 +127,8 @@ public class Test extends Controller {
 			
 			is.close();
 			
-			return ok(i + " products added.");
+			// return ok(i + " products added.");
+			return redirect("/?message="+ i + " albums added.");
 
 		} catch (Exception e) {
 			e.printStackTrace();
