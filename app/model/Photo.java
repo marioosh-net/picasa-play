@@ -10,8 +10,9 @@ public class Photo {
 	private String content;
 	private String albumId;
 	private String[] keywords;
+	private boolean pub;
 	
-	public Photo(String title, String id, List<String> thumbs, String content, String albumId, String[] keywords) {
+	public Photo(String title, String id, List<String> thumbs, String content, String albumId, String[] keywords, boolean pub) {
 		super();
 		this.title = title;
 		this.id = id;
@@ -19,6 +20,7 @@ public class Photo {
 		this.content = content;
 		this.albumId = albumId;
 		this.keywords = keywords;
+		this.pub = pub;
 	}
 
 	public String getTitle() {
@@ -73,5 +75,14 @@ public class Photo {
 		return keywords;
 	}
 
+	
+	public boolean isPub() {
+		return pub;
+	}
+	
+	
+	public void setPub(boolean pub) {
+		this.pub = pub;
+	}
 	
 }

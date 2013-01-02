@@ -25,13 +25,16 @@ import views.html.token;
 import com.google.gdata.client.Query;
 import com.google.gdata.client.http.AuthSubUtil;
 import com.google.gdata.client.photos.PicasawebService;
+import com.google.gdata.data.PlainTextConstruct;
 import com.google.gdata.data.media.mediarss.MediaGroup;
 import com.google.gdata.data.photos.AlbumEntry;
 import com.google.gdata.data.photos.AlbumFeed;
 import com.google.gdata.data.photos.GphotoAlbumId;
 import com.google.gdata.data.photos.GphotoEntry;
+import com.google.gdata.data.photos.GphotoId;
 import com.google.gdata.data.photos.GphotoPhotosUsed;
 import com.google.gdata.data.photos.PhotoEntry;
+import com.google.gdata.data.photos.TagEntry;
 import com.google.gdata.data.photos.UserFeed;
 import com.google.gdata.util.ServiceException;
 
@@ -164,6 +167,7 @@ public class Application extends Controller {
 	public static Result photos(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
 		info("Getting photos list...");
 		myService = myServices.get(serviceIndex);
+		session("si", serviceIndex+"");
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo,tag"+"&thumbsize="+THUMB_SIZE+"&fields=id,title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords)");
 		debug(feedUrl.toString());
 		Query photosQuery = new Query(feedUrl);
@@ -185,15 +189,16 @@ public class Application extends Controller {
 				debug("thumbs:"+g.getThumbnails().get(2).getUrl());
 				debug("orig:"+g.getContents().get(0).getUrl());
 				*/
-				if(session("user") != null || g.getKeywords().getKeywords().contains("public")) {
+				boolean pub = g.getKeywords().getKeywords().contains("public");
+				if(session("user") != null || pub) {
 					lp.add(new Photo(e.getTitle().getPlainText(), 
-						e.getId(), 
+							e.getExtension(GphotoId.class).getValue(), 
 						Arrays.asList(new String[]{g.getThumbnails().get(0).getUrl(), 
 								g.getThumbnails().get(1).getUrl(), 
 								g.getThumbnails().get(2).getUrl()}), 
 						g.getContents().get(0).getUrl(), 
 						e.getExtension(GphotoAlbumId.class).getValue(), 
-						g.getKeywords().getKeywords().toArray(new String[]{})));
+						g.getKeywords().getKeywords().toArray(new String[]{}), pub));
 				}
 			}
 		}
@@ -201,4 +206,21 @@ public class Application extends Controller {
 		// return ok(photos.render(feed, (List<GphotoEntry<PhotoEntry>>)feed.getEntries<PhotoEntry>(), l));
 		return ok(photos.render(feed, lp, getAlbums()));
 	}
+	
+	public static Result pub(int serviceIndex, String albumId, String photoId) throws IOException, ServiceException {
+		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"/photoid/"+photoId);
+		TagEntry myTag = new TagEntry(); 
+		myTag.setTitle(new PlainTextConstruct("public"));
+		myServices.get(serviceIndex).insert(feedUrl, myTag);
+		return ok("1");
+	}
+
+	public static Result priv(int serviceIndex, String albumId, String photoId) throws IOException, ServiceException {
+		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"/photoid/"+photoId);
+		TagEntry myTag = new TagEntry(); 
+		myTag.delete();
+		myServices.get(serviceIndex).insert(feedUrl, myTag);
+		return ok("0");
+	}
+	
 }

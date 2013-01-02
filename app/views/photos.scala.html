@@ -20,7 +20,7 @@
     *@
     
     @for(i <- photos.indices) {
-        <div id="th@i" class="thumb_box" >
+        <div id="th@i" class="thumb_box" style="@if(session.get("user") != null){height:auto;}" >
             <a class="lightview" data-lightview-group="a@photos(i).getAlbumId()" data-lightview-title="<a href='@photos(i).getContent()' target='_blank'>@photos(i).getTitle()</a>" data-lightview-group-options="controls: 'thumbnails', slideshow: 3000" data-lightview-options="thumbnail: '@photos(i).getThumbs().get(1)'" href="@photos(i).getThumbs().get(2)">
 	            <div id="t@i" class="thumb" style="background-image: url('@routes.Assets.at("images/ajax-loader7.gif")'); background-position: 50% 50%; "></div>
 	            <div id="u@photos(i).hashCode()" class="thumb ttip" @*onmouseover="exif(@photos(i).hashCode());"*@ style="float: none; display: none; background-image: url(@photos(i).getThumbs().get(0)); "></div>
@@ -31,6 +31,8 @@
             
             @if(session.get("user") != null) {
 			<div class="thumb_options">
+				<a href="#" id="pub@i" style="@if(photos(i).isPub()){display: none;}" onclick="jQuery.ajax({url: '/pub/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()'}).done(function(r) {if(r == '0') {jQuery('#priv@i').hide();jQuery('#pub@i').show();} else {jQuery('#priv@i').show();jQuery('#pub@i').hide();}});" >public</a>
+				<a href="#" id="priv@i" style="@if(!photos(i).isPub()){display: none;}" onclick="jQuery.ajax({url: '/priv/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()'}).done(function(r) {if(r == '0') {jQuery('#priv@i').hide();jQuery('#pub@i').show();} else {jQuery('#priv@i').show();jQuery('#pub@i').hide();}});" >private</a>
 			</div>         
 			}   
         </div>
