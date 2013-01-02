@@ -31,14 +31,26 @@
                           <div class="left" style="padding-top: 10px;">
                               <a href="/" class="logoref"><img src="@routes.Assets.at("images/logo.png")"></a>
                           </div>
-                          <div class="right" style="margin-top: 10px;"></div>
+                          
+			            <div class="right" style="margin-top: 10px;">
+			            @if(session.get("user") != null) {
+			             <a href="/logout" >Logout</a>
+			            } else {
+			            <div id="form" style="display: none;"><form id="f" action="/login"><input name="pass" type="password" value=""/>&nbsp;<a href="#" onclick="jQuery('#f').submit();">OK</a>|<a href="#" onclick="jQuery('#form').hide(); jQuery('#loginb').show();">Cancel</a><input type="submit" value="Login" style="display: none;"/></form></div>
+			                    <a id="loginb" href="#" onclick="jQuery('#form').toggle(); jQuery(this).toggle();">Login</a>
+			                }
+			                &nbsp;<a href="/?lang=pl">PL</a>|<a href="/?lang=en">EN</a>                   
+			            </div>
+                          
                           <div class="clear"></div>
                         </div>	                
 	                    @contentright
 	                    
+	                    @*
 	                    <div>
 	                       <ul><li><a href="/test">+1album</a></li><li><a href="/test/5">+5album</a></li></ul>
 	                    </div>
+	                    *@
 	                </div>
                 </div>
             </div>

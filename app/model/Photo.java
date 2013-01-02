@@ -9,14 +9,16 @@ public class Photo {
 	private List<String> thumbs;
 	private String content;
 	private String albumId;
+	private String[] keywords;
 	
-	public Photo(String title, String id, List<String> thumbs, String content, String albumId) {
+	public Photo(String title, String id, List<String> thumbs, String content, String albumId, String[] keywords) {
 		super();
 		this.title = title;
 		this.id = id;
 		this.thumbs = thumbs;
 		this.content = content;
 		this.albumId = albumId;
+		this.keywords = keywords;
 	}
 
 	public String getTitle() {
@@ -59,5 +61,17 @@ public class Photo {
 	public void setAlbumId(String albumId) {
 		this.albumId = albumId;
 	}
+	
+
+	
+	public void setKeywords(String[] keywords) {
+		this.keywords = keywords;
+	}
+	
+	
+	public String[] getKeywords() {
+		return keywords;
+	}
+
 	
 }

@@ -71,6 +71,19 @@ public class Application extends Controller {
 		}		
 	}
 	
+	public static Result logout() throws MalformedURLException {
+		session().clear();
+		return ok(albums.render(getAlbums(), null));
+	}
+	
+	public static Result login(String hash) throws MalformedURLException {
+		if(hash.equals("password")) {
+			session("user", "admin");
+			return ok(albums.render(getAlbums(), null));
+		}
+		return ok(albums.render(getAlbums(), "login error"));
+	}
+	
 	public static Result auth() {
 		myService = new PicasawebService("testApp");
 		String requestUrl = AuthSubUtil.getRequestUrl("http://localhost:9000/token", "https://picasaweb.google.com/data/", false, true);
@@ -108,22 +121,32 @@ public class Application extends Controller {
 	}
 	
 	public static Result albumsPartial(String message) throws IOException, ServiceException {
+		debug("LOGGED: " + session("user"));
 		return ok(albums.render(getAlbums(), message));
 	}
 	
 	public static List<Album> getAlbums() throws MalformedURLException {
 		info("Getting albums list...");
-		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album&thumbsize="+THUMB_SIZE+"&fields=entry(title,id,gphoto:id,gphoto:numphotos,media:group/media:thumbnail)");
+		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album,tag&thumbsize="+THUMB_SIZE+"&fields=entry(title,id,gphoto:id,gphoto:numphotos,media:group/media:thumbnail,media:group/media:keywords)");
 		Query albumQuery = new Query(feedUrl);
 		
 		List<Album> l = new ArrayList<Album>();		
 		int i = 0;
 		for(PicasawebService s: myServices) {
+			debug(feedUrl.toString());			
 			try {
 				UserFeed feed = s.query(albumQuery, UserFeed.class);
 				for (GphotoEntry e : feed.getEntries()) {
-					// describe(e);
-					l.add(new Album(e.getGphotoId(), e.getTitle().getPlainText(), e.getExtension(MediaGroup.class).getThumbnails().get(0).getUrl(), e.getExtension(GphotoPhotosUsed.class).getValue(), i));
+					// Utils.describe(e);
+					if(e.getGphotoId() != null) {
+						
+						if(session("user") != null || e.getTitle().getPlainText().endsWith("+")) {
+							l.add(new Album(e.getGphotoId(), e.getTitle().getPlainText().replaceAll("\\+", ""), e.getExtension(MediaGroup.class).getThumbnails().get(0).getUrl(), e.getExtension(GphotoPhotosUsed.class).getValue(), i));
+						}
+					} else {
+						// tag... (?kind=album,tag)
+						debug("album TAG: "+e.getTitle().getPlainText());
+					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -141,7 +164,8 @@ public class Application extends Controller {
 	public static Result photos(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
 		info("Getting photos list...");
 		myService = myServices.get(serviceIndex);
-		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo,tag&thumbsize="+THUMB_SIZE+"&imgmax="+IMG_SIZE+"&fields=title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:content,media:group/media:thumbnail)"+(max!= 0 ? "&max-results="+max: "")+(start!= 0 ? "&start-index="+start: ""));
+		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo,tag"+"&thumbsize="+THUMB_SIZE+"&fields=id,title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords)");
+		debug(feedUrl.toString());
 		Query photosQuery = new Query(feedUrl);
 		
 		// AlbumFeed feed = myService.getFeed(feedUrl, AlbumFeed.class);		
@@ -161,7 +185,16 @@ public class Application extends Controller {
 				debug("thumbs:"+g.getThumbnails().get(2).getUrl());
 				debug("orig:"+g.getContents().get(0).getUrl());
 				*/
-				lp.add(new Photo(e.getTitle().getPlainText(), e.getId(), Arrays.asList(new String[]{g.getThumbnails().get(0).getUrl(), g.getThumbnails().get(1).getUrl(), g.getThumbnails().get(2).getUrl()}), g.getContents().get(0).getUrl(), e.getExtension(GphotoAlbumId.class).getValue()));
+				if(session("user") != null || g.getKeywords().getKeywords().contains("public")) {
+					lp.add(new Photo(e.getTitle().getPlainText(), 
+						e.getId(), 
+						Arrays.asList(new String[]{g.getThumbnails().get(0).getUrl(), 
+								g.getThumbnails().get(1).getUrl(), 
+								g.getThumbnails().get(2).getUrl()}), 
+						g.getContents().get(0).getUrl(), 
+						e.getExtension(GphotoAlbumId.class).getValue(), 
+						g.getKeywords().getKeywords().toArray(new String[]{})));
+				}
 			}
 		}
 		// debug("TITLE:"+feed.getTitle()+"");
