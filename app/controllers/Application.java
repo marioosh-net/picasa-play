@@ -141,7 +141,7 @@ public class Application extends Controller {
 					if(e.getGphotoId() != null) {
 						
 						if(session("user") != null || e.getTitle().getPlainText().endsWith("+")) {
-							l.add(new Album(e.getGphotoId(), e.getTitle().getPlainText().replaceAll("\\+", ""), e.getExtension(MediaGroup.class).getThumbnails().get(0).getUrl(), e.getExtension(GphotoPhotosUsed.class).getValue(), i));
+							l.add(new Album(e.getGphotoId(), e.getTitle().getPlainText(), e.getExtension(MediaGroup.class).getThumbnails().get(0).getUrl(), e.getExtension(GphotoPhotosUsed.class).getValue(), i));
 						}
 					} else {
 						// tag... (?kind=album,tag)
