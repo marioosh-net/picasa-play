@@ -128,6 +128,11 @@ public class Application extends Controller {
 		return ok(albums.render(getAlbums(), message));
 	}
 	
+	/**
+	 * album list
+	 * @return
+	 * @throws MalformedURLException
+	 */
 	public static List<Album> getAlbums() throws MalformedURLException {
 		info("Getting albums list...");
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album,tag&thumbsize="+THUMB_SIZE+"&fields=entry(title,id,gphoto:id,gphoto:numphotos,media:group/media:thumbnail,media:group/media:keywords)");
@@ -164,16 +169,33 @@ public class Application extends Controller {
 		return l;
 	}
 	
+	/**
+	 * photos in album list
+	 * @param serviceIndex
+	 * @param albumId
+	 * @param start
+	 * @param max
+	 * @return
+	 * @throws IOException
+	 * @throws ServiceException
+	 */
 	public static Result photos(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
 		info("Getting photos list...");
 		myService = myServices.get(serviceIndex);
 		session("si", serviceIndex+"");
+		session("ai", albumId+"");
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo,tag"+"&thumbsize="+THUMB_SIZE+"&fields=id,title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords)");
 		debug(feedUrl.toString());
 		Query photosQuery = new Query(feedUrl);
 		
 		// AlbumFeed feed = myService.getFeed(feedUrl, AlbumFeed.class);		
 		AlbumFeed feed = myService.query(photosQuery, AlbumFeed.class);
+		if(feed.getTitle().getPlainText().endsWith("+")) {
+			session("pub", "1");
+		} else {
+			session().remove("pub");
+		}
+		
 		// describe(feed.getEntries().get(0));
 		List<Photo> lp = new ArrayList<Photo>();
 		for(GphotoEntry<PhotoEntry> e: feed.getEntries()) {
@@ -207,6 +229,15 @@ public class Application extends Controller {
 		return ok(photos.render(feed, lp, getAlbums()));
 	}
 	
+	/**
+	 * make photo public
+	 * @param serviceIndex
+	 * @param albumId
+	 * @param photoId
+	 * @return
+	 * @throws IOException
+	 * @throws ServiceException
+	 */
 	public static Result pub(int serviceIndex, String albumId, String photoId) throws IOException, ServiceException {
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"/photoid/"+photoId);
 		TagEntry myTag = new TagEntry(); 
@@ -215,12 +246,75 @@ public class Application extends Controller {
 		return ok("1");
 	}
 
+	/**
+	 * make photo private
+	 * @param serviceIndex
+	 * @param albumId
+	 * @param photoId
+	 * @return
+	 * @throws IOException
+	 * @throws ServiceException
+	 */
 	public static Result priv(int serviceIndex, String albumId, String photoId) throws IOException, ServiceException {
-		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"/photoid/"+photoId);
-		TagEntry myTag = new TagEntry(); 
-		myTag.delete();
-		myServices.get(serviceIndex).insert(feedUrl, myTag);
+		URL entryUrl = new URL("https://picasaweb.google.com/data/entry/api/user/default/albumid/"+albumId+"/photoid/"+photoId+"/tag/public");
+		TagEntry te = myServices.get(serviceIndex).getEntry(entryUrl, TagEntry.class);
+		te.delete();
 		return ok("0");
+		
+		/*
+		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"/photoid/"+photoId+"?kind=tag&tag=public");
+		debug(feedUrl+"");
+		Query photosQuery = new Query(feedUrl);
+		AlbumFeed searchResultsFeed = myServices.get(serviceIndex).query(photosQuery, AlbumFeed.class);
+		for (TagEntry tag : searchResultsFeed.getTagEntries()) {
+			if(tag.getTitle().getPlainText().equals("public")) {
+				tag.delete();
+				break;
+			}
+		}
+		return ok("0");
+		*/		
+				
+		/*
+		TagEntry myTag = myServices.get(serviceIndex).getEntry(new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"/photoid/"+photoId+"/tag/public"), TagEntry.class);
+		myTag.delete();
+		// myServices.get(serviceIndex).insert(feedUrl, myTag);
+		return ok("0");
+		*/
+	}
+
+	/**
+	 * make album public
+	 * @param serviceIndex
+	 * @param albumId
+	 * @return
+	 * @throws IOException
+	 * @throws ServiceException
+	 */
+	public static Result pubAlbum(int serviceIndex, String albumId) throws IOException, ServiceException {
+		URL feedUrl = new URL("https://picasaweb.google.com/data/entry/api/user/default/albumid/"+albumId);
+		debug(feedUrl+"");
+		AlbumEntry ae = myServices.get(serviceIndex).getEntry(feedUrl, AlbumEntry.class);
+		ae.setTitle(new PlainTextConstruct(ae.getTitle().getPlainText()+"+"));
+		ae.update();
+		return ok("1");
 	}
 	
+	/**
+	 * make album private
+	 * @param serviceIndex
+	 * @param albumId
+	 * @return
+	 * @throws IOException
+	 * @throws ServiceException
+	 */
+	public static Result privAlbum(int serviceIndex, String albumId) throws IOException, ServiceException {
+		URL feedUrl = new URL("https://picasaweb.google.com/data/entry/api/user/default/albumid/"+albumId);
+		debug(feedUrl+"");
+		AlbumEntry ae = myServices.get(serviceIndex).getEntry(feedUrl, AlbumEntry.class);
+		ae.setTitle(new PlainTextConstruct(ae.getTitle().getPlainText().replaceAll("\\+", "")));
+		ae.update();
+		return ok("0");
+	}
+
 }

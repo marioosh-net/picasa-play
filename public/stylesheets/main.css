@@ -646,12 +646,14 @@ ul.albums_list {
     padding-top: 2px;   
     padding-left: 3px;
     padding-right: 3px;
+    position: relative;
+    top: -15px;
 }
 .album_options {
     margin-top: 5px;
 }
 .album_options a, .thumb_options a {
-    font-size: 11px;
+    font-size: 11px !important;
 }
 .public_thumb {
     color: #fff; 

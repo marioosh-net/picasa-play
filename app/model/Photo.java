@@ -84,5 +84,5 @@ public class Photo {
 	public void setPub(boolean pub) {
 		this.pub = pub;
 	}
-	
+
 }

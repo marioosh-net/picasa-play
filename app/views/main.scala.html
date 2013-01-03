@@ -36,7 +36,7 @@
 			            @if(session.get("user") != null) {
 			             <a href="/logout" >Logout</a>
 			            } else {
-			            <div id="form" style="display: none;"><form id="f" action="/login"><input name="pass" type="password" value=""/>&nbsp;<a href="#" onclick="jQuery('#f').submit();">OK</a>|<a href="#" onclick="jQuery('#form').hide(); jQuery('#loginb').show();">Cancel</a><input type="submit" value="Login" style="display: none;"/></form></div>
+			            <span id="form" style="display: none;"><form id="f" action="/login" style="display: inline;"><input name="pass" type="password" value=""/>&nbsp;<a href="#" onclick="jQuery('#f').submit();">OK</a>|<a href="#" onclick="jQuery('#form').hide(); jQuery('#loginb').show();">Cancel</a><input type="submit" value="Login" style="display: none;"/></form></span>
 			                    <a id="loginb" href="#" onclick="jQuery('#form').toggle(); jQuery(this).toggle();">Login</a>
 			                }
 			                &nbsp;<a href="/?lang=pl">PL</a>|<a href="/?lang=en">EN</a>                   
@@ -51,6 +51,15 @@
 	                       <ul><li><a href="/test">+1album</a></li><li><a href="/test/5">+5album</a></li></ul>
 	                    </div>
 	                    *@
+	                    
+				        <div id="footer-right">
+				            Inspired by <a href="http://minishowcase.net">minishowcase</a>. Powered by <a href="http://www.playframework.org/"><img style="vertical-align: text-bottom;" src="@routes.Assets.at("images/play.png")"></a>&nbsp;|&nbsp;<a href="http://marioosh.net">marioosh.net</a>
+				            <br>Images presented on this site may not be used without permission
+				            <div class="left"></div>
+				            <div class="right"></div>
+				            <div class="clear"></div>
+				        </div>
+				                	                    
 	                </div>
                 </div>
             </div>

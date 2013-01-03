@@ -5,6 +5,12 @@
     <div id="photos-header">
     <div class="left album-title">
         <a href="/">albumy</a>&nbsp;&raquo;&nbsp; <a href="#">@feed.getTitle().getPlainText()</a>
+        @if(session.get("user") != null) {
+        <span class="album_options">
+        <a id="pubal" href="#" style="@if(session.get("pub") != null){display: none;}" onclick="jQuery.ajax({url: '/pub/@session.get("si")/@session.get("ai")'}).done(function(r) {if(r == '0') {jQuery('#prival').hide();jQuery('#pubal').show();} else {jQuery('#prival').show();jQuery('#pubal').hide();}}); return false;">public</a>
+        <a id="prival" href="#" style="@if(session.get("pub") == null){display: none;}" onclick="jQuery.ajax({url: '/priv/@session.get("si")/@session.get("ai")'}).done(function(r) {if(r == '0') {jQuery('#prival').hide();jQuery('#pubal').show();} else {jQuery('#prival').show();jQuery('#pubal').hide();}}); return false;">private</a>
+        </span>
+        }
     </div>
     <div class="right">
     </div>
@@ -31,8 +37,8 @@
             
             @if(session.get("user") != null) {
 			<div class="thumb_options">
-				<a href="#" id="pub@i" style="@if(photos(i).isPub()){display: none;}" onclick="jQuery.ajax({url: '/pub/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()'}).done(function(r) {if(r == '0') {jQuery('#priv@i').hide();jQuery('#pub@i').show();} else {jQuery('#priv@i').show();jQuery('#pub@i').hide();}});" >public</a>
-				<a href="#" id="priv@i" style="@if(!photos(i).isPub()){display: none;}" onclick="jQuery.ajax({url: '/priv/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()'}).done(function(r) {if(r == '0') {jQuery('#priv@i').hide();jQuery('#pub@i').show();} else {jQuery('#priv@i').show();jQuery('#pub@i').hide();}});" >private</a>
+				<a href="#" id="pub@i" style="@if(photos(i).isPub()){display: none;}" onclick="jQuery.ajax({url: '/pub/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()'}).done(function(r) {if(r == '0') {jQuery('#priv@i').hide();jQuery('#pub@i').show();} else {jQuery('#priv@i').show();jQuery('#pub@i').hide();}}); return false;" >public</a>
+				<a href="#" id="priv@i" style="@if(!photos(i).isPub()){display: none;}" onclick="jQuery.ajax({url: '/priv/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()'}).done(function(r) {if(r == '0') {jQuery('#priv@i').hide();jQuery('#pub@i').show();} else {jQuery('#priv@i').show();jQuery('#pub@i').hide();}}); return false;" >private</a>
 			</div>         
 			}   
         </div>
