@@ -425,6 +425,8 @@ img.icon {
     padding-bottom: 5px;
     padding-right: 5px;
     
+    overflow: auto; 
+    height: 500px;
 }
 .oneset /*, .setsheader*/ {
     padding-left: 10px;

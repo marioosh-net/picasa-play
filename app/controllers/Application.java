@@ -29,6 +29,7 @@ import com.google.gdata.data.PlainTextConstruct;
 import com.google.gdata.data.media.mediarss.MediaGroup;
 import com.google.gdata.data.photos.AlbumEntry;
 import com.google.gdata.data.photos.AlbumFeed;
+import com.google.gdata.data.photos.ExifTags;
 import com.google.gdata.data.photos.GphotoAlbumId;
 import com.google.gdata.data.photos.GphotoEntry;
 import com.google.gdata.data.photos.GphotoId;
@@ -185,7 +186,8 @@ public class Application extends Controller {
 		myService = myServices.get(serviceIndex);
 		session("si", serviceIndex+"");
 		session("ai", albumId+"");
-		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo,tag"+"&thumbsize="+THUMB_SIZE+"&fields=id,title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords)");
+		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo,tag"+"&thumbsize="+THUMB_SIZE+
+				"&fields=id,title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords,exif:tags)");
 		debug(feedUrl.toString());
 		Query photosQuery = new Query(feedUrl);
 		
@@ -206,6 +208,9 @@ public class Application extends Controller {
 			// Utils.describe(e);
 			// debug("EXTENSIONS:" + e.getExtensions()+"");
 			MediaGroup g = e.getExtension(MediaGroup.class);
+			ExifTags exif = e.getExtension(ExifTags.class);
+			//Utils.describe(exif);
+			
 			if(g != null) {
 				/*
 				debug(g.getContents().size()+"");
@@ -224,7 +229,7 @@ public class Application extends Controller {
 								g.getThumbnails().get(2).getUrl()}), 
 						g.getContents().get(0).getUrl(), 
 						e.getExtension(GphotoAlbumId.class).getValue(), 
-						g.getKeywords().getKeywords().toArray(new String[]{}), pub));
+						g.getKeywords().getKeywords().toArray(new String[]{}), pub, exif));
 				}
 			}
 		}

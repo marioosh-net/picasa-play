@@ -1,6 +1,7 @@
 package model;
 
 import java.util.List;
+import com.google.gdata.data.photos.ExifTags;
 
 
 public class Photo {
@@ -11,8 +12,9 @@ public class Photo {
 	private String albumId;
 	private String[] keywords;
 	private boolean pub;
+	private ExifTags exif;
 	
-	public Photo(String title, String id, List<String> thumbs, String content, String albumId, String[] keywords, boolean pub) {
+	public Photo(String title, String id, List<String> thumbs, String content, String albumId, String[] keywords, boolean pub, ExifTags exif) {
 		super();
 		this.title = title;
 		this.id = id;
@@ -21,6 +23,7 @@ public class Photo {
 		this.albumId = albumId;
 		this.keywords = keywords;
 		this.pub = pub;
+		this.exif = exif;
 	}
 
 	public String getTitle() {
@@ -85,4 +88,13 @@ public class Photo {
 		this.pub = pub;
 	}
 
+	
+	public ExifTags getExif() {
+		return exif;
+	}
+	
+	
+	public void setExif(ExifTags exif) {
+		this.exif = exif;
+	}
 }
