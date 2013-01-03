@@ -1,7 +1,9 @@
 @(feed: com.google.gdata.data.photos.AlbumFeed, photos: List[model.Photo], albums: List[model.Album])
+@*
 @main("Photos",null) {
 	@albumslist(albums)
 } {
+*@
     <div id="photos-header">
     <div class="left album-title">
         <a href="/">albumy</a>&nbsp;&raquo;&nbsp; <a href="#">@session.get("aname")@*@feed.getTitle().getPlainText()*@</a>
@@ -44,4 +46,4 @@
         </div>
     }
     <div class="clear"></div>    
-}
+@*}*@

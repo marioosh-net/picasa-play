@@ -10,7 +10,7 @@
     <div id="albums">
 	    <div class="frame-albums">    
            @for(album <- albums) {
-		    <a href="/album/@album.getServiceIndex()/@album.getId()" title="@album.getTitle()" >
+            <a onclick="$('#right').load('/album/@album.getServiceIndex()/@album.getId()'); return false;" href="#" title="@album.getTitle()" >
 		        <div class="oneset oneset_@album.getId()">
 		            @album.getTitle()@*<span class="counts">(@album.getCount())</span>*@
 		        </div>
