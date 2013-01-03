@@ -166,7 +166,7 @@ public class Application extends Controller {
 		Collections.sort(l, new Comparator<Album>() {
 			@Override
 			public int compare(Album o1, Album o2) {
-				return o1.getTitle().compareTo(o2.getTitle());
+				return o2.getTitle().compareTo(o1.getTitle());
 			}});
 		return l;
 	}
