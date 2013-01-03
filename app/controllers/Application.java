@@ -148,9 +148,9 @@ public class Application extends Controller {
 					// Utils.describe(e);
 					if(e.getGphotoId() != null) {
 						
-						if(session("user") != null || e.getTitle().getPlainText().endsWith("+")) {
+						if(session("user") != null || e.getTitle().getPlainText().endsWith("\u00A0")) {
 							String t = e.getTitle().getPlainText();
-							l.add(new Album(e.getGphotoId(), t.endsWith("+") ? t.substring(0,t.length()-1) : t, e.getExtension(MediaGroup.class).getThumbnails().get(0).getUrl(), e.getExtension(GphotoPhotosUsed.class).getValue(), i));
+							l.add(new Album(e.getGphotoId(), t, e.getExtension(MediaGroup.class).getThumbnails().get(0).getUrl(), e.getExtension(GphotoPhotosUsed.class).getValue(), i));
 						}
 					} else {
 						// tag... (?kind=album,tag)
@@ -191,14 +191,14 @@ public class Application extends Controller {
 		
 		// AlbumFeed feed = myService.getFeed(feedUrl, AlbumFeed.class);		
 		AlbumFeed feed = myService.query(photosQuery, AlbumFeed.class);
-		if(feed.getTitle().getPlainText().endsWith("+")) {
+		if(feed.getTitle().getPlainText().endsWith("\u00A0")) {
 			session("pub", "1");
 		} else {
 			session().remove("pub");
 		}
 		
 		String t = feed.getTitle().getPlainText();
-		session("aname", t.endsWith("+") ? t.substring(0,t.length()-1) : t);
+		session("aname", t);
 		
 		// describe(feed.getEntries().get(0));
 		List<Photo> lp = new ArrayList<Photo>();
@@ -299,7 +299,7 @@ public class Application extends Controller {
 		URL feedUrl = new URL("https://picasaweb.google.com/data/entry/api/user/default/albumid/"+albumId);
 		debug(feedUrl+"");
 		AlbumEntry ae = myServices.get(serviceIndex).getEntry(feedUrl, AlbumEntry.class);
-		ae.setTitle(new PlainTextConstruct(ae.getTitle().getPlainText()+"+"));
+		ae.setTitle(new PlainTextConstruct(ae.getTitle().getPlainText()+"\u00A0"));
 		ae.update();
 		return ok("1");
 	}
@@ -316,7 +316,7 @@ public class Application extends Controller {
 		URL feedUrl = new URL("https://picasaweb.google.com/data/entry/api/user/default/albumid/"+albumId);
 		debug(feedUrl+"");
 		AlbumEntry ae = myServices.get(serviceIndex).getEntry(feedUrl, AlbumEntry.class);
-		ae.setTitle(new PlainTextConstruct(ae.getTitle().getPlainText().replaceAll("\\+", "")));
+		ae.setTitle(new PlainTextConstruct(ae.getTitle().getPlainText().replaceAll("\u00A0", "").replaceAll("\\+", "")));
 		ae.update();
 		return ok("0");
 	}
