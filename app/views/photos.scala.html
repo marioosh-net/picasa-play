@@ -4,7 +4,7 @@
 } {
     <div id="photos-header">
     <div class="left album-title">
-        <a href="/">albumy</a>&nbsp;&raquo;&nbsp; <a href="#">@feed.getTitle().getPlainText()</a>
+        <a href="/">albumy</a>&nbsp;&raquo;&nbsp; <a href="#">@session.get("aname")@*@feed.getTitle().getPlainText()*@</a>
         @if(session.get("user") != null) {
         <span class="album_options">
         <a id="pubal" href="#" style="@if(session.get("pub") != null){display: none;}" onclick="jQuery.ajax({url: '/pub/@session.get("si")/@session.get("ai")'}).done(function(r) {if(r == '0') {jQuery('#prival').hide();jQuery('#pubal').show();} else {jQuery('#prival').show();jQuery('#pubal').hide();}}); return false;">public</a>

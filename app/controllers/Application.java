@@ -149,7 +149,8 @@ public class Application extends Controller {
 					if(e.getGphotoId() != null) {
 						
 						if(session("user") != null || e.getTitle().getPlainText().endsWith("+")) {
-							l.add(new Album(e.getGphotoId(), e.getTitle().getPlainText(), e.getExtension(MediaGroup.class).getThumbnails().get(0).getUrl(), e.getExtension(GphotoPhotosUsed.class).getValue(), i));
+							String t = e.getTitle().getPlainText();
+							l.add(new Album(e.getGphotoId(), t.endsWith("+") ? t.substring(0,t.length()-1) : t, e.getExtension(MediaGroup.class).getThumbnails().get(0).getUrl(), e.getExtension(GphotoPhotosUsed.class).getValue(), i));
 						}
 					} else {
 						// tag... (?kind=album,tag)
@@ -195,6 +196,9 @@ public class Application extends Controller {
 		} else {
 			session().remove("pub");
 		}
+		
+		String t = feed.getTitle().getPlainText();
+		session("aname", t.endsWith("+") ? t.substring(0,t.length()-1) : t);
 		
 		// describe(feed.getEntries().get(0));
 		List<Photo> lp = new ArrayList<Photo>();
