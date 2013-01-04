@@ -19,6 +19,10 @@ body,html {
 div {
     /* overflow: hidden; /* IE6: div height */
 }
+input {
+	height: 13px;
+	font-size: 10px;
+}
 a {
     text-decoration: none;
     color: #888;
@@ -478,11 +482,19 @@ img.icon {
 #searchbox {
     font-size: 12px;
     padding: 5px;
+    color: #888;
 }
 #searchbox input {
     font-size: 10px;
-    height: 16px;
+    /*height: 16px;*/
     width: 80px; 
+}
+#searchbox a {
+	color: #888;
+}
+#searchbox a:hover {
+	color: #fff;
+	text-decoration: underline;
 }
 #searches {
     font-size: 12px;

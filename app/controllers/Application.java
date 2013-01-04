@@ -7,11 +7,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 import model.Album;
 import model.Photo;
@@ -25,6 +27,7 @@ import views.html.token;
 import com.google.gdata.client.Query;
 import com.google.gdata.client.http.AuthSubUtil;
 import com.google.gdata.client.photos.PicasawebService;
+import com.google.gdata.data.Extension;
 import com.google.gdata.data.PlainTextConstruct;
 import com.google.gdata.data.media.mediarss.MediaGroup;
 import com.google.gdata.data.photos.AlbumEntry;
@@ -37,12 +40,15 @@ import com.google.gdata.data.photos.GphotoPhotosUsed;
 import com.google.gdata.data.photos.PhotoEntry;
 import com.google.gdata.data.photos.TagEntry;
 import com.google.gdata.data.photos.UserFeed;
+import com.google.gdata.data.photos.impl.ExifTag;
+import com.google.gdata.util.ParseException;
 import com.google.gdata.util.ServiceException;
 
 public class Application extends Controller {
 	
 	static final String THUMB_SIZE = "104c,72c,800";
 	static final String IMG_SIZE = "1600";//"d";
+	static final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
 	static public List<PicasawebService> myServices = new ArrayList<PicasawebService>();
 	static private PicasawebService myService;
@@ -190,7 +196,7 @@ public class Application extends Controller {
 		session("si", serviceIndex+"");
 		session("ai", albumId+"");
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo,tag"+"&thumbsize="+THUMB_SIZE+"&imgmax="+IMG_SIZE+
-				"&fields=id,title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords,exif:tags)");
+				"&fields=id,title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords)"/*,exif:tags)"*/);
 		debug(feedUrl.toString());
 		Query photosQuery = new Query(feedUrl);
 		
@@ -252,6 +258,7 @@ public class Application extends Controller {
 	 */
 	public static Result pub(int serviceIndex, String albumId, String photoId) throws IOException, ServiceException {
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"/photoid/"+photoId);
+		debug(feedUrl+"");
 		TagEntry myTag = new TagEntry(); 
 		myTag.setTitle(new PlainTextConstruct("public"));
 		myServices.get(serviceIndex).insert(feedUrl, myTag);
@@ -328,5 +335,59 @@ public class Application extends Controller {
 		ae.update();
 		return ok("0");
 	}
+	
+	public static Result exif(int serviceIndex, String albumId, String photoId) throws IOException, ServiceException {
+		URL feedUrl = new URL("https://picasaweb.google.com/data/entry/api/user/default/albumid/"+albumId+"/photoid/"+photoId+
+				"?fields=exif:tags,title");
+		debug(feedUrl+"");
+		PhotoEntry pe = myServices.get(serviceIndex).getEntry(feedUrl, PhotoEntry.class);
+		debug(pe+"");
+		if(pe.hasExifTags() && pe.getExifTags() != null) {
+			ExifTags e = pe.getExifTags();
+			return ok(formatExifTags(e, pe));			
+		} else {
+			return ok("No EXIF tags.");
+		}
+	}
 
+	private static String formatExifTags(ExifTags e, PhotoEntry pe) throws ParseException {
+		debug(e+"");
+		
+		Utils.describe(e);
+		for(ExifTag tag: e.getExifTags()) {
+			info(tag.getName() + ":" + tag.getValue());
+		}
+		for(List<Extension> l: e.getRepeatingExtensions()) {
+			for(Extension ex: l) {
+				if(ex instanceof ExifTag) {
+					ExifTag t = (ExifTag) ex;
+					info(t.getName() + ":" + t.getValue());
+				}
+			}
+		}
+
+		String a = null;
+		String exif = 
+				"<pre>" +
+				(e.getTime() != null ? "Create Date                     :"+ (e.getTime() != null ? sdf.format(e.getTime()) : "") + "\n" : "") +
+				(pe != null && pe.getTitle() != null ? "File Name                       :" + pe.getTitle().getPlainText() + "\n" : "") +
+				(a != null ? "File Size                       :" + a + "\n" : "" ) +
+				(e.getCameraModel() != null ? "Camera Model Name               :" + e.getCameraModel() + "\n" : "" ) +
+				(e.getApetureFNumber() != null ? "F Number                        :" + e.getApetureFNumber() + "\n" : "" ) +
+				(e.getFocalLength() != null ? "Focal Length                    :" + e.getFocalLength() + "\n" : "" ) +
+				(a != null ? "Focal Length In 35mm Format     :" + a + "\n" : "" ) +
+				(e.getExposureTime() != null ? "Exposure Time                   :" + e.getExposureTime() + "\n" : "" ) +
+				(e.getIsoEquivalent() != null ? "ISO                             :" + e.getIsoEquivalent() + "\n" : "" ) +
+				(a != null ? "Exposure Program                :" + a + "\n" : "" ) +
+				(a != null ? "Exposure Mode                   :" + a + "\n" : "" ) +
+				(a != null ? "Metering Mode                   :" + a + "\n" : "" ) +
+				(a != null ? "White Balance                   :" + a + "\n" : "" ) +
+				(e.getFlashUsed() != null ? "Flash                           :" + e.getFlashUsed() + "\n" : "" ) +
+				(a != null ? "Light Source                    :" + a + "\n" : "" ) +
+				(a != null ? "Exposure Compensation           :" + a + "\n" : "" ) +
+				(a != null ? "Image Width                     :" + a + "\n" : "" ) +
+				(a != null ? "Image Height                    :" + a : "") +
+				"</pre>";
+		return exif;
+	}
 }

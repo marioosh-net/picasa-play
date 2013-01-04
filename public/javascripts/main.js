@@ -18,6 +18,22 @@ function exif(id) {
 	});
 }
 
+function exif(index, albumid, photoid) {
+	loading('#exif');
+	xhr = $.ajax({
+		beforeSend: function() {
+			if(xhr && xhr.readystate != 4){
+	            xhr.abort();
+	        }		
+		},		
+		url: '/exif/'+index+'/'+albumid+'/'+photoid
+	}).done(function(data){
+		/*$('#debug').show();
+		$('#debug').html(data);*/
+		$('#exif').html(data);
+	});
+}
+
 function filter(s) {
 	/*$('#debug').html(''); $('#debug').show();*/
 	$('#albums-only a').each(function(){

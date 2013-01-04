@@ -37,7 +37,7 @@
 	    
 	       <div id="albums-only">
            @for(album <- albums) {
-            <a onclick="$('.oneset').removeClass('album-selected'); $(this).find('div').addClass('album-selected'); loading('#right'); $('#right').load('/album/@album.getServiceIndex()/@album.getId()'); return false;" href="#" title="@album.getTitle()" >
+            <a onclick="$('.oneset').removeClass('album-selected'); $(this).find('div').addClass('album-selected'); $('#exif').html(''); loading('#right'); $('#right').load('/album/@album.getServiceIndex()/@album.getId()'); return false;" href="#" title="@album.getTitle()" >
 		        <div class="oneset oneset_@album.getId()">
 		            @album.getTitle()@*<span class="counts">(@album.getCount())</span>*@
 		        </div>
