@@ -856,3 +856,8 @@ div.message {
 	color: #fff;
 	font-size: 1.2em; 
 }
+
+.album-selected {
+    background-color: #AAA;
+    border-bottom: 1px solid #ddd;
+}
