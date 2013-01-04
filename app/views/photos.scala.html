@@ -40,7 +40,7 @@
             @if(session.get("user") != null) {
 			<div class="thumb_options">
 				<a href="#" id="pub@i" style="@if(photos(i).isPub()){display: none;}" onclick="$.ajax({url: '/pub/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()'}).done(function(r) {if(r == '0') {$('#priv@i').hide();$('#pub@i').show();} else {$('#priv@i').show();$('#pub@i').hide();}}); return false;" >public</a>
-				<a href="#" id="priv@i" style="@if(!photos(i).isPub()){display: none;}" onclick="$.ajax({url: '/priv/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()'}).done(function(r) {if(r == '0') {$('#priv@i').hide();$('#pub@i').show();} else {$('#priv@i').show();$('#pub@i').hide();}}); return false;" >private</a>
+				<a href="#" id="priv@i" style="@if(!photos(i).isPub()){display: none;} color: #5CCCCC; font-weight: bold;" onclick="$.ajax({url: '/priv/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()'}).done(function(r) {if(r == '0') {$('#priv@i').hide();$('#pub@i').show();} else {$('#priv@i').show();$('#pub@i').hide();}}); return false;" >private</a>
 			</div>         
 			}   
         </div>
