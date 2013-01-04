@@ -189,7 +189,7 @@ public class Application extends Controller {
 		myService = myServices.get(serviceIndex);
 		session("si", serviceIndex+"");
 		session("ai", albumId+"");
-		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo,tag"+"&thumbsize="+THUMB_SIZE+
+		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo,tag"+"&thumbsize="+THUMB_SIZE+"&imgmax="+IMG_SIZE+
 				"&fields=id,title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords,exif:tags)");
 		debug(feedUrl.toString());
 		Query photosQuery = new Query(feedUrl);
