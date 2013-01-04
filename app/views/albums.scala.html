@@ -12,15 +12,15 @@
 		                <a href="#" onclick="loading('#right'); $('#right').load('/album/@albums(i).getServiceIndex()/@albums(i).getId()'); return false;" class="thumb_link">
 		                    <div id="t@i" class="thumb" style="background-image: url('@routes.Assets.at("images/ajax-loader7.gif")'); background-position: 50% 50%; "></div>
 		                    <div id="u@i" class="thumb thumb_box_cover" style="display: none; float: none; background-image: url('@albums(i).getThumbnailUrl()');"></div>
-		                    <img style="display: none;" src="@albums(i).getThumbnailUrl()" onload="jQuery('#t@i').hide(); jQuery('#u@i').show();">
+		                    <img style="display: none;" src="@albums(i).getThumbnailUrl()" onload="$('#t@i').hide(); $('#u@i').show();">
 		                </a>
 		            </div>
                     @*
 		            <div class="thumb_box" title="2012_07_08_basenik_na_balkonie">
-		                <a href="#" onclick="jQuery('.tooltip').remove(); jQuery('#photos').load('/gallery/app/photos/643/1');" class="thumb_link">
+		                <a href="#" onclick="$('.tooltip').remove(); $('#photos').load('/gallery/app/photos/643/1');" class="thumb_link">
 		                    <div id="t0" class="thumb" style="background-image: url(https://marioosh.net/gallery/images/ajax-loader7.gif); display: none; background-position: 50% 50%;"></div>
 		                    <div id="u0" class="thumb thumb_box_cover" style="float: none; background-image: url(https://marioosh.net/gallery/app/a/643/cover);"></div>
-		                    <img style="display: none;" src="/gallery/app/a/643/cover" onload="jQuery('#t0').hide(); jQuery('#u0').show();">
+		                    <img style="display: none;" src="/gallery/app/a/643/cover" onload="$('#t0').hide(); $('#u0').show();">
 		                </a>
 		            </div>
 		            *@

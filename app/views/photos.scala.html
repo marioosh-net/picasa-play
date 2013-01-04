@@ -9,8 +9,8 @@
         <a href="/">albumy</a>&nbsp;&raquo;&nbsp; <a href="#">@session.get("aname")@*@feed.getTitle().getPlainText()*@</a>
         @if(session.get("user") != null) {
         <span class="album_options">
-        <a id="pubal" href="#" style="@if(session.get("pub") != null){display: none;}" onclick="jQuery.ajax({url: '/pub/@session.get("si")/@session.get("ai")'}).done(function(r) {if(r == '0') {jQuery('#prival').hide();jQuery('#pubal').show();} else {jQuery('#prival').show();jQuery('#pubal').hide();}}); return false;">public</a>
-        <a id="prival" href="#" style="@if(session.get("pub") == null){display: none;}" onclick="jQuery.ajax({url: '/priv/@session.get("si")/@session.get("ai")'}).done(function(r) {if(r == '0') {jQuery('#prival').hide();jQuery('#pubal').show();} else {jQuery('#prival').show();jQuery('#pubal').hide();}}); return false;">private</a>
+        <a id="pubal" href="#" style="@if(session.get("pub") != null){display: none;}" onclick="$.ajax({url: '/pub/@session.get("si")/@session.get("ai")'}).done(function(r) {if(r == '0') {$('#prival').hide();$('#pubal').show();} else {$('#prival').show();$('#pubal').hide();}}); return false;">public</a>
+        <a id="prival" href="#" style="@if(session.get("pub") == null){display: none;}" onclick="$.ajax({url: '/priv/@session.get("si")/@session.get("ai")'}).done(function(r) {if(r == '0') {$('#prival').hide();$('#pubal').show();} else {$('#prival').show();$('#pubal').hide();}}); return false;">private</a>
         </span>
         }
     </div>
@@ -32,15 +32,15 @@
             <a class="lightview" data-lightview-group="a@photos(i).getAlbumId()" data-lightview-title="<a href='@photos(i).getContent()' target='_blank'>@photos(i).getTitle()</a>" data-lightview-group-options="controls: 'thumbnails', slideshow: 3000" data-lightview-options="thumbnail: '@photos(i).getThumbs().get(1)'" href="@photos(i).getThumbs().get(2)">
 	            <div id="t@i" class="thumb" style="background-image: url('@routes.Assets.at("images/ajax-loader7.gif")'); background-position: 50% 50%; "></div>
 	            <div id="u@photos(i).hashCode()" class="thumb ttip" @*onmouseover="exif(@photos(i).hashCode());"*@ style="float: none; display: none; background-image: url(@photos(i).getThumbs().get(0)); "></div>
-	            <img style="display: none;" src="@photos(i).getThumbs().get(0)" onload="jQuery('#t@i').hide(); jQuery('#u@photos(i).hashCode()').show();"/>
+	            <img style="display: none;" src="@photos(i).getThumbs().get(0)" onload="$('#t@i').hide(); $('#u@photos(i).hashCode()').show();"/>
             </a>
             <a href="@photos(i).getThumbs().get(2)" title="Otwórz w nowym oknie" target="_blank"><img class="full" src="@routes.Assets.at("images/n3.png")" alt="full size"></a>
             <span style="display: none;">@for(tag <- photos(i).getKeywords()) {@tag,}</span>
             
             @if(session.get("user") != null) {
 			<div class="thumb_options">
-				<a href="#" id="pub@i" style="@if(photos(i).isPub()){display: none;}" onclick="jQuery.ajax({url: '/pub/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()'}).done(function(r) {if(r == '0') {jQuery('#priv@i').hide();jQuery('#pub@i').show();} else {jQuery('#priv@i').show();jQuery('#pub@i').hide();}}); return false;" >public</a>
-				<a href="#" id="priv@i" style="@if(!photos(i).isPub()){display: none;}" onclick="jQuery.ajax({url: '/priv/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()'}).done(function(r) {if(r == '0') {jQuery('#priv@i').hide();jQuery('#pub@i').show();} else {jQuery('#priv@i').show();jQuery('#pub@i').hide();}}); return false;" >private</a>
+				<a href="#" id="pub@i" style="@if(photos(i).isPub()){display: none;}" onclick="$.ajax({url: '/pub/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()'}).done(function(r) {if(r == '0') {$('#priv@i').hide();$('#pub@i').show();} else {$('#priv@i').show();$('#pub@i').hide();}}); return false;" >public</a>
+				<a href="#" id="priv@i" style="@if(!photos(i).isPub()){display: none;}" onclick="$.ajax({url: '/priv/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()'}).done(function(r) {if(r == '0') {$('#priv@i').hide();$('#pub@i').show();} else {$('#priv@i').show();$('#pub@i').hide();}}); return false;" >private</a>
 			</div>         
 			}   
         </div>

@@ -1,11 +1,11 @@
 function loading(a){
-	jQuery(a).html('<div style="padding: 5px;"><img src="/assets/images/ajax-loader7.gif"/>&#160;loading...</div>');
+	$(a).html('<div style="padding: 5px;"><img src="/assets/images/ajax-loader7.gif"/>&#160;loading...</div>');
 }
 
 var xhr;
 function exif(id) {
 	loading('#exif');
-	xhr = jQuery.ajax({
+	xhr = $.ajax({
 		url: '/exif/'+'exiftool/'+id+'/0',
 		beforeSend: function() {
 			if(xhr && xhr.readystate != 4){
@@ -13,7 +13,36 @@ function exif(id) {
 	        }		
 		},
 		success: function(data){
-			jQuery('#exif').html(data);
+			$('#exif').html(data);
 		}
 	});
+}
+
+function filter(s) {
+	/*$('#debug').html(''); $('#debug').show();*/
+	$('#albums-only a').each(function(){
+		if($(this).attr('title').toUpperCase().indexOf(s.toUpperCase()) >= 0) {
+			/*$('#debug').html($('#debug').html()+ ' GOOD: ' + $(this).attr('title'));*/
+			$(this).show();
+		} else {
+			/*$('#debug').html($('#debug').html()+ ' NOT: ' + $(this).attr('title'));*/
+			$(this).hide();
+		}
+	});
+	var e = $('#albums-only').jScrollPane();
+	var api = e.data('jsp');
+	if(!api.getIsScrollableV()) {
+		api.destroy();
+	}
+	
+	$('.covers .thumbs .thumb_box').each(function(){
+		if($(this).attr('title').toUpperCase().indexOf(s.toUpperCase()) >= 0) {
+			/*$('#debug').html($('#debug').html()+ ' GOOD: ' + $(this).attr('title'));*/
+			$(this).show();
+		} else {
+			/*$('#debug').html($('#debug').html()+ ' NOT: ' + $(this).attr('title'));*/
+			$(this).hide();
+		}
+	});
+	
 }

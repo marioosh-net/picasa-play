@@ -424,9 +424,13 @@ img.icon {
     background-position: right bottom;
     padding-bottom: 5px;
     padding-right: 5px;
+}
+#albums-only {
     
     overflow: auto; 
     height: 500px;
+    width: 100%;
+	
 }
 .oneset /*, .setsheader*/ {
     padding-left: 10px;

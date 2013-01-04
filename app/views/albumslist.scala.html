@@ -6,16 +6,43 @@
     } 
     </ul>
     *@
-
+        
     <div id="albums">
-	    <div class="frame-albums">    
+	    <div class="frame-albums">
+	    
+            <div class="setsheader">
+            
+	            <div id="searchbox">
+	                <div class="left">
+	                    <input type="text" name="search" id="search" value="" >&nbsp;
+	                    <a id="bsearch" href="#" >Search</a>
+	                    |
+	                    <a id="ball" href="#" >All</a>
+	                </div>
+	                <div class="right">
+	                    <img src="@routes.Assets.at("images/ajax-loader6.gif")" id="search-progress" style="display: none;">
+	                </div><div class="clear"></div>
+	                <script>
+	                function search() {	$('#search-progress').show(); filter($('#search').val()); $('#search-progress').hide(); $('#search').focus();$('#search').select(); }
+	                $("#bsearch").click(function(event) { search(); });
+                    $("#ball").click(function(event) { $('#search').val(''); search(); });	                
+	                $("#search").change(function(event) { search(); });
+	                $("#search").keypress(function(event) { if (event.which == 13) { search(); } });	                
+	                </script>
+	            </div>
+	            <div id="searches" style="display:none;">
+	            </div>
+            
+            </div>
+	    
+	       <div id="albums-only">
            @for(album <- albums) {
             <a onclick="loading('#right'); $('#right').load('/album/@album.getServiceIndex()/@album.getId()'); return false;" href="#" title="@album.getTitle()" >
 		        <div class="oneset oneset_@album.getId()">
 		            @album.getTitle()@*<span class="counts">(@album.getCount())</span>*@
 		        </div>
 		     </a>
-		    @*<span class="subalbums" id="subalbums_@album.getId()"></span>*@
            }
+           </div>
 	    </div>
     </div>

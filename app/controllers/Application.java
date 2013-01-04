@@ -151,6 +151,9 @@ public class Application extends Controller {
 						
 						if(session("user") != null || e.getTitle().getPlainText().endsWith("\u00A0")) {
 							String t = e.getTitle().getPlainText();
+							if(t.length() > 40) {
+								t = t.substring(0, 39)+"...";
+							}
 							l.add(new Album(e.getGphotoId(), t, e.getExtension(MediaGroup.class).getThumbnails().get(0).getUrl(), e.getExtension(GphotoPhotosUsed.class).getValue(), i));
 						}
 					} else {

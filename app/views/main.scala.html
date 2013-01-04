@@ -23,7 +23,7 @@
         <script>
         $(function()
         		{
-        		    $('.frame-albums').jScrollPane();
+        		    $('#albums-only').jScrollPane();
         		});        
         </script>
         
@@ -49,8 +49,8 @@
 			            @if(session.get("user") != null) {
 			             <a href="/logout" >Logout</a>
 			            } else {
-			            <span id="form" style="display: none;"><form id="f" action="/login" style="display: inline;"><input name="pass" type="password" value=""/>&nbsp;<a href="#" onclick="jQuery('#f').submit();">OK</a>|<a href="#" onclick="jQuery('#form').hide(); jQuery('#loginb').show();">Cancel</a><input type="submit" value="Login" style="display: none;"/></form></span>
-			                    <a id="loginb" href="#" onclick="jQuery('#form').toggle(); jQuery(this).toggle();">Login</a>
+			            <span id="form" style="display: none;"><form id="f" action="/login" style="display: inline;"><input name="pass" type="password" value=""/>&nbsp;<a href="#" onclick="$('#f').submit();">OK</a>|<a href="#" onclick="$('#form').hide(); $('#loginb').show();">Cancel</a><input type="submit" value="Login" style="display: none;"/></form></span>
+			                    <a id="loginb" href="#" onclick="$('#form').toggle(); $(this).toggle();">Login</a>
 			                }
 			                &nbsp;<a href="/?lang=pl">PL</a>|<a href="/?lang=en">EN</a>                   
 			            </div>
@@ -74,9 +74,13 @@
 				            <div class="clear"></div>
 				        </div>
 				        
+				        @*
 						<div id="exif-container">
 				           <div id="exif"></div>
-				        </div>				        
+				        </div>
+				        *@
+				        
+				        <div id="debug" style="display: none;"></div>				        
 				                	                    
 	                </div>
                 </div>
