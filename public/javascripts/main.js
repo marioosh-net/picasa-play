@@ -34,6 +34,16 @@ function exif(index, albumid, photoid) {
 	});
 }
 
+function scrollRefresh() {
+	$('#albums-only').css('height','500px');
+	var e = $('#albums-only').jScrollPane();
+	var api = e.data('jsp');
+	if(!api.getIsScrollableV()) {
+		api.destroy();
+		$('#albums-only').css('height','auto');
+	}	
+}
+
 function filter(s) {
 	/*$('#debug').html(''); $('#debug').show();*/
 	$('#albums-only a').each(function(){
@@ -45,11 +55,7 @@ function filter(s) {
 			$(this).hide();
 		}
 	});
-	var e = $('#albums-only').jScrollPane();
-	var api = e.data('jsp');
-	if(!api.getIsScrollableV()) {
-		api.destroy();
-	}
+	scrollRefresh();
 	
 	$('.covers .thumbs .thumb_box').each(function(){
 		if($(this).attr('title').toUpperCase().indexOf(s.toUpperCase()) >= 0) {

@@ -196,7 +196,11 @@ public class Application extends Controller {
 		session("si", serviceIndex+"");
 		session("ai", albumId+"");
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo,tag"+"&thumbsize="+THUMB_SIZE+"&imgmax="+IMG_SIZE+
-				"&fields=id,title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords)"/*,exif:tags)"*/);
+				"&fields=id,title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords)"+
+				"&max-results=500"
+				//+(session("user") != null ? "" : "&tag=public")
+				//+,exif:tags)"*/
+				);
 		debug(feedUrl.toString());
 		Query photosQuery = new Query(feedUrl);
 		
@@ -341,7 +345,7 @@ public class Application extends Controller {
 				"?fields=exif:tags,title");
 		debug(feedUrl+"");
 		PhotoEntry pe = myServices.get(serviceIndex).getEntry(feedUrl, PhotoEntry.class);
-		debug(pe+"");
+		// debug(pe+"");
 		if(pe.hasExifTags() && pe.getExifTags() != null) {
 			ExifTags e = pe.getExifTags();
 			return ok(formatExifTags(e, pe));			
@@ -351,8 +355,9 @@ public class Application extends Controller {
 	}
 
 	private static String formatExifTags(ExifTags e, PhotoEntry pe) throws ParseException {
-		debug(e+"");
+		// debug(e+"");
 		
+		/*
 		Utils.describe(e);
 		for(ExifTag tag: e.getExifTags()) {
 			info(tag.getName() + ":" + tag.getValue());
@@ -365,6 +370,7 @@ public class Application extends Controller {
 				}
 			}
 		}
+		*/
 
 		String a = null;
 		String exif = 
