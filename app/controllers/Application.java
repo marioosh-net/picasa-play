@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import model.Album;
 import model.Photo;
@@ -21,6 +22,7 @@ import model.Utils;
 import play.mvc.Controller;
 import play.mvc.Result;
 import scala.actors.threadpool.Arrays;
+import scala.collection.mutable.HashMap;
 import views.html.albums;
 import views.html.photos;
 import views.html.token;
@@ -195,10 +197,10 @@ public class Application extends Controller {
 		myService = myServices.get(serviceIndex);
 		session("si", serviceIndex+"");
 		session("ai", albumId+"");
-		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo,tag"+"&thumbsize="+THUMB_SIZE+"&imgmax="+IMG_SIZE+
-				"&fields=id,title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords)"+
-				"&max-results=500"
-				//+(session("user") != null ? "" : "&tag=public")
+		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo"+"&thumbsize="+THUMB_SIZE+"&imgmax="+IMG_SIZE+
+				"&fields=id,title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords),openSearch:totalResults,openSearch:startIndex,openSearch:itemsPerPage"+
+				"&max-results="+max+"&start-index="+start
+				+(session("user") != null ? "" : "&tag=public") /* to rozsortowuje kolejnosc fotek! */
 				//+,exif:tags)"*/
 				);
 		debug(feedUrl.toString());
@@ -214,6 +216,13 @@ public class Application extends Controller {
 		
 		String t = feed.getTitle().getPlainText();
 		session("aname", t);
+		debug("total:"+feed.getTotalResults());
+		debug("perPage:"+feed.getItemsPerPage());
+		debug("start:"+feed.getStartIndex());
+		java.util.HashMap<String, Integer> map = new java.util.HashMap<String, Integer>();
+		map.put("total",feed.getTotalResults());
+		map.put("start",feed.getStartIndex());
+		map.put("per",feed.getItemsPerPage());
 		
 		// describe(feed.getEntries().get(0));
 		List<Photo> lp = new ArrayList<Photo>();
@@ -248,7 +257,7 @@ public class Application extends Controller {
 		}
 		// debug("TITLE:"+feed.getTitle()+"");
 		// return ok(photos.render(feed, (List<GphotoEntry<PhotoEntry>>)feed.getEntries<PhotoEntry>(), l));
-		return ok(photos.render(feed, lp, null));
+		return ok(photos.render(feed, lp, null, map));
 	}
 	
 	/**
@@ -343,7 +352,7 @@ public class Application extends Controller {
 	public static Result exif(int serviceIndex, String albumId, String photoId) throws IOException, ServiceException {
 		URL feedUrl = new URL("https://picasaweb.google.com/data/entry/api/user/default/albumid/"+albumId+"/photoid/"+photoId+
 				"?fields=exif:tags,title");
-		debug(feedUrl+"");
+		// debug(feedUrl+"");
 		PhotoEntry pe = myServices.get(serviceIndex).getEntry(feedUrl, PhotoEntry.class);
 		// debug(pe+"");
 		if(pe.hasExifTags() && pe.getExifTags() != null) {

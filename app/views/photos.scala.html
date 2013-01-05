@@ -1,4 +1,4 @@
-@(feed: com.google.gdata.data.photos.AlbumFeed, photos: List[model.Photo], albums: List[model.Album])
+@(feed: com.google.gdata.data.photos.AlbumFeed, photos: List[model.Photo], albums: List[model.Album], map: java.util.HashMap[String,Integer])
 @*
 @main("Photos",null) {
 	@albumslist(albums)
@@ -27,6 +27,18 @@
     </ul>
     *@
 
+<div class="pages">
+total:@map.get("total");start:@map.get("start");per:@map.get("per")<br/>
+@if(map.get("start") != 1) {
+	<div><a href="#" onclick="loadingIcon(this); $('#right').load('/album/@session.get("si")/@session.get("ai")?start=@(map.get("start")-map.get("per"))'); return false;">[&laquo; prev ]</a></div>
+}
+@if(map.get("start")+map.get("per")-1 < map.get("total")) {
+	<div><a href="#" onclick="loadingIcon(this); $('#right').load('/album/@session.get("si")/@session.get("ai")?start=@(map.get("start")+map.get("per"))'); return false;">[ next &raquo;]</a></div>
+}
+</div>
+<div class="clear"></div>
+
+	<div id="photos">
     @for(i <- photos.indices) {
     
         <div id="th@i" class="thumb_box" style="@if(session.get("user") != null){height:auto;}" >
@@ -49,5 +61,17 @@
 			}   
         </div>
     }
-    <div class="clear"></div>    
+    <div class="clear"></div>
+    </div>
+    
+<div class="pages">
+@if(map.get("start") != 1) {
+	<div><a href="#" onclick="loadingIcon(this); $('#right').load('/album/@session.get("si")/@session.get("ai")?start=@(map.get("start")-map.get("per"))'); return false;">[&laquo; prev ]</a></div>
+}
+@if(map.get("start")+map.get("per")-1 < map.get("total")) {
+	<div><a href="#" onclick="loadingIcon(this); $('#right').load('/album/@session.get("si")/@session.get("ai")?start=@(map.get("start")+map.get("per"))'); return false;">[ next &raquo;]</a></div>
+}
+</div>
+<div class="clear"></div>
+        
 @*}*@
