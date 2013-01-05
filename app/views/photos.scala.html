@@ -27,6 +27,7 @@
     </ul>
     *@
 
+@if(session.get("user") != null) {
 <div class="pages">
 total:@map.get("total");start:@map.get("start");per:@map.get("per")<br/>
 @if(map.get("start") != 1) {
@@ -37,6 +38,7 @@ total:@map.get("total");start:@map.get("start");per:@map.get("per")<br/>
 }
 </div>
 <div class="clear"></div>
+}
 
 	<div id="photos">
     @for(i <- photos.indices) {
@@ -64,6 +66,7 @@ total:@map.get("total");start:@map.get("start");per:@map.get("per")<br/>
     <div class="clear"></div>
     </div>
     
+@if(session.get("user") != null) {
 <div class="pages">
 @if(map.get("start") != 1) {
 	<div><a href="#" onclick="loadingIcon(this); $('#right').load('/album/@session.get("si")/@session.get("ai")?start=@(map.get("start")-map.get("per"))'); return false;">[&laquo; prev ]</a></div>
@@ -73,5 +76,6 @@ total:@map.get("total");start:@map.get("start");per:@map.get("per")<br/>
 }
 </div>
 <div class="clear"></div>
-        
+}
+
 @*}*@

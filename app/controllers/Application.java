@@ -199,8 +199,8 @@ public class Application extends Controller {
 		session("ai", albumId+"");
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo"+"&thumbsize="+THUMB_SIZE+"&imgmax="+IMG_SIZE+
 				"&fields=id,title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords),openSearch:totalResults,openSearch:startIndex,openSearch:itemsPerPage"+
-				"&max-results="+max+"&start-index="+start
-				+(session("user") != null ? "" : "&tag=public") /* to rozsortowuje kolejnosc fotek! */
+				(session("user") != null ? "&max-results="+max+"&start-index="+start : "")
+				//+(session("user") != null ? "" : "&tag=public") /* to rozsortowuje kolejnosc fotek! */
 				//+,exif:tags)"*/
 				);
 		debug(feedUrl.toString());
