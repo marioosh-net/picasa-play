@@ -224,6 +224,11 @@ public class Application extends Controller {
 		map.put("start",feed.getStartIndex());
 		map.put("per",feed.getItemsPerPage());
 		
+		List<Integer> pages = new ArrayList<Integer>();
+		for(int i = 1; i <= feed.getTotalResults()/feed.getItemsPerPage() + 1; i++) {
+			pages.add(i);
+		}
+		
 		// describe(feed.getEntries().get(0));
 		List<Photo> lp = new ArrayList<Photo>();
 		for(GphotoEntry<PhotoEntry> e: feed.getEntries()) {
@@ -257,7 +262,7 @@ public class Application extends Controller {
 		}
 		// debug("TITLE:"+feed.getTitle()+"");
 		// return ok(photos.render(feed, (List<GphotoEntry<PhotoEntry>>)feed.getEntries<PhotoEntry>(), l));
-		return ok(photos.render(feed, lp, null, map));
+		return ok(photos.render(feed, lp, null, map, pages));
 	}
 	
 	/**
