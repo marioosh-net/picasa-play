@@ -30,27 +30,29 @@
 @******* show pages ********@
 @showPages() = {
 
-	<div class="pages">
-		@for(p <- pages) {
-			@if((p-1) * map.get("per") + 1 == map.get("start")) {
-				<div><span style="color: #fff;">[@p]</span></div>
-			} else {
-				<div><a href="#" onclick="loadingIcon(this); $('#right').load('/album/@session.get("si")/@session.get("ai")?start=@((p-1) * map.get("per") + 1)'); return false;">[@p]</a></div>
+	@if(pages.size() > 1) {
+		<div class="pages">
+			@for(p <- pages) {
+				@if((p-1) * map.get("per") + 1 == map.get("start")) {
+					<div><span style="color: #fff;">[@p]</span></div>
+				} else {
+					<div><a href="#" onclick="loadingIcon(this); $('#right').load('/album/@session.get("si")/@session.get("ai")?start=@((p-1) * map.get("per") + 1)'); return false;">[@p]</a></div>
+				}
+			}	
+			
+			@*total:@map.get("total");start:@map.get("start");per:@map.get("per")<br/>*@
+			
+			@*
+			@if(map.get("start") != 1) {
+				<div><a href="#" onclick="loadingIcon(this); $('#right').load('/album/@session.get("si")/@session.get("ai")?start=@(map.get("start")-map.get("per"))'); return false;">[&laquo; prev ]</a></div>
 			}
-		}	
-		
-		@*total:@map.get("total");start:@map.get("start");per:@map.get("per")<br/>*@
-		
-		@*
-		@if(map.get("start") != 1) {
-			<div><a href="#" onclick="loadingIcon(this); $('#right').load('/album/@session.get("si")/@session.get("ai")?start=@(map.get("start")-map.get("per"))'); return false;">[&laquo; prev ]</a></div>
-		}
-		@if(map.get("start")+map.get("per")-1 < map.get("total")) {
-			<div><a href="#" onclick="loadingIcon(this); $('#right').load('/album/@session.get("si")/@session.get("ai")?start=@(map.get("start")+map.get("per"))'); return false;">[ next &raquo;]</a></div>
-		}
-		*@
-	</div>
-	<div class="clear"></div>
+			@if(map.get("start")+map.get("per")-1 < map.get("total")) {
+				<div><a href="#" onclick="loadingIcon(this); $('#right').load('/album/@session.get("si")/@session.get("ai")?start=@(map.get("start")+map.get("per"))'); return false;">[ next &raquo;]</a></div>
+			}
+			*@
+		</div>
+		<div class="clear"></div>
+	}
 }
 @******* show pages END ********@
 

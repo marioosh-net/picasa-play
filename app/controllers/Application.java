@@ -1,35 +1,26 @@
 package controllers;
 
 import static play.Logger.debug;
-import static play.Logger.error;
 import static play.Logger.info;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
 import model.Album;
 import model.Photo;
-import model.Utils;
 import play.mvc.Controller;
 import play.mvc.Result;
 import scala.actors.threadpool.Arrays;
-import scala.collection.mutable.HashMap;
 import views.html.albums;
 import views.html.photos;
 import views.html.token;
 import com.google.gdata.client.Query;
 import com.google.gdata.client.http.AuthSubUtil;
 import com.google.gdata.client.photos.PicasawebService;
-import com.google.gdata.data.Extension;
 import com.google.gdata.data.PlainTextConstruct;
 import com.google.gdata.data.media.mediarss.MediaGroup;
 import com.google.gdata.data.photos.AlbumEntry;
@@ -42,7 +33,6 @@ import com.google.gdata.data.photos.GphotoPhotosUsed;
 import com.google.gdata.data.photos.PhotoEntry;
 import com.google.gdata.data.photos.TagEntry;
 import com.google.gdata.data.photos.UserFeed;
-import com.google.gdata.data.photos.impl.ExifTag;
 import com.google.gdata.util.ParseException;
 import com.google.gdata.util.ServiceException;
 
@@ -54,34 +44,6 @@ public class Application extends Controller {
 
 	static public List<PicasawebService> myServices = new ArrayList<PicasawebService>();
 	static private PicasawebService myService;
-	
-	static {
-		try {
-			info("Loading services...");
-			Properties p = new Properties();
-			InputStream in =  Application.class.getResourceAsStream("/resources/accounts.properties");
-			if(in != null) {
-				p.load(in);
-				in.close();
-			
-				Enumeration e = p.propertyNames();
-				List<String[]> l = new ArrayList<String[]>();
-				while(e.hasMoreElements()) {
-					String k = (String) e.nextElement();
-					l.add(new String[]{k+"", p.getProperty(k)});
-					PicasawebService myService = new PicasawebService("testApp");			
-					myService.setUserCredentials(k+"", p.getProperty(k));
-					myServices.add(myService);
-				}
-			
-			} else {
-				error("null inputstream");
-			}
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}		
-	}
 	
 	public static Result logout() throws MalformedURLException {
 		session().clear();
