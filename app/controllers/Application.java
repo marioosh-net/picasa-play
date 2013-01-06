@@ -80,7 +80,7 @@ public class Application extends Controller {
 			UserFeed feed = s.getFeed(feedUrl, UserFeed.class);
 			for(AlbumEntry a: feed.getAlbumEntries()) {
 				String id = a.getId().substring(a.getId().lastIndexOf('/')+1);
-				l.add(new Album(id, a.getTitle().getPlainText(), a.getMediaThumbnails().get(0).getUrl(), a.getPhotosUsed(), i));
+				l.add(new Album(id, a.getTitle().getPlainText(), a.getMediaThumbnails().get(0).getUrl(), a.getPhotosUsed(), i, a.getTitle().getPlainText().endsWith("\u00A0")));
 			}
 		i++;
 		}
@@ -124,7 +124,7 @@ public class Application extends Controller {
 							if(t.length() > 40) {
 								t = t.substring(0, 39)+"...";
 							}
-							l.add(new Album(e.getGphotoId(), t, e.getExtension(MediaGroup.class).getThumbnails().get(0).getUrl(), e.getExtension(GphotoPhotosUsed.class).getValue(), i));
+							l.add(new Album(e.getGphotoId(), t, e.getExtension(MediaGroup.class).getThumbnails().get(0).getUrl(), e.getExtension(GphotoPhotosUsed.class).getValue(), i, e.getTitle().getPlainText().endsWith("\u00A0")));
 						}
 					} else {
 						// tag... (?kind=album,tag)

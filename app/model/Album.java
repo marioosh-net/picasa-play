@@ -7,13 +7,15 @@ public class Album {
 	private int count;
 	private int serviceIndex;
 	private String thumbnailUrl;
+	private boolean pub;
 	
-	public Album(String id, String title, String thumbnailUrl, int count, int serviceIndex) {
+	public Album(String id, String title, String thumbnailUrl, int count, int serviceIndex, boolean pub) {
 		this.id = id;
 		this.title = title;
 		this.count = count;
 		this.serviceIndex = serviceIndex;
 		this.thumbnailUrl = thumbnailUrl;
+		this.pub = pub;
 	}
 
 	public String getTitle() {
@@ -60,5 +62,15 @@ public class Album {
 	
 	public void setThumbnailUrl(String thumbnailUrl) {
 		this.thumbnailUrl = thumbnailUrl;
+	}
+	
+	
+	public boolean isPub() {
+		return pub;
+	}
+	
+	
+	public void setPub(boolean pub) {
+		this.pub = pub;
 	}
 }
