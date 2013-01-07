@@ -16,10 +16,13 @@ import java.util.List;
 import java.util.Properties;
 import model.Album;
 import model.Photo;
+import play.api.templates.Html;
 import play.mvc.Controller;
 import play.mvc.Result;
 import scala.actors.threadpool.Arrays;
 import views.html.albums;
+import views.html.albumslist;
+import views.html.main;
 import views.html.photos;
 import views.html.token;
 import com.google.gdata.client.Query;
@@ -181,6 +184,11 @@ public class Application extends Controller {
 			}});
 		return l;
 	}
+
+	public static Result direct(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
+		return ok(main.render(albumId+"", null, albumslist.render(getAlbums()), photosHtml(serviceIndex, albumId, start, max)));
+		// return ok("DIRECT");
+	}
 	
 	/**
 	 * photos in album list
@@ -193,6 +201,10 @@ public class Application extends Controller {
 	 * @throws ServiceException
 	 */
 	public static Result photos(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
+		return ok(photosHtml(serviceIndex, albumId, start, max));
+	}
+	
+	private static Html photosHtml(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
 		info("Getting photos list...");
 		myService = myServices.get(serviceIndex);
 		session("si", serviceIndex+"");
@@ -267,7 +279,7 @@ public class Application extends Controller {
 		}
 		// debug("TITLE:"+feed.getTitle()+"");
 		// return ok(photos.render(feed, (List<GphotoEntry<PhotoEntry>>)feed.getEntries<PhotoEntry>(), l));
-		return ok(photos.render(feed, lp, null, map, pages));
+		return photos.render(feed, lp, null, map, pages);
 	}
 	
 	/**

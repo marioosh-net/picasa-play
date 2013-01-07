@@ -7,6 +7,7 @@ GET     /login                                      controllers.Application.logi
 GET     /logout                                     controllers.Application.logout()
 GET     /                                           controllers.Application.albumsPartial(message ?="")
 GET     /album/:serviceIndex/:albumId               controllers.Application.photos(serviceIndex:Int, albumId, start:Int ?=1, max:Int ?=24)
+GET     /direct/:serviceIndex/:albumId              controllers.Application.direct(serviceIndex:Int, albumId, start:Int ?=1, max:Int ?=24)
 GET     /pub/:serviceIndex/:albumId/:photoId        controllers.Application.pub(serviceIndex:Int, albumId, photoId)
 GET     /priv/:serviceIndex/:albumId/:photoId       controllers.Application.priv(serviceIndex:Int, albumId, photoId)
 GET     /pub/:serviceIndex/:albumId                 controllers.Application.pubAlbum(serviceIndex:Int, albumId)
