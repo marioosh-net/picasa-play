@@ -376,35 +376,32 @@ public class Application extends Controller {
 				"?fields=exif:tags,title");
 		// debug(feedUrl+"");
 		PhotoEntry pe = myServices.get(serviceIndex).getEntry(feedUrl, PhotoEntry.class);
-		// debug(pe+"");
-		if(pe.hasExifTags() && pe.getExifTags() != null) {
-			ExifTags e = pe.getExifTags();
-			return ok(formatExifTags(e, pe));			
-		} else {
-			return ok("No EXIF tags.");
-		}
+		return ok(exifTagsHtml(pe));
 	}
 
-	private static String formatExifTags(ExifTags e, PhotoEntry pe) throws ParseException {
-		// debug(e+"");
-		
-		/*
-		Utils.describe(e);
-		for(ExifTag tag: e.getExifTags()) {
-			info(tag.getName() + ":" + tag.getValue());
-		}
-		for(List<Extension> l: e.getRepeatingExtensions()) {
-			for(Extension ex: l) {
-				if(ex instanceof ExifTag) {
-					ExifTag t = (ExifTag) ex;
-					info(t.getName() + ":" + t.getValue());
+	private static Html exifTagsHtml(PhotoEntry pe) throws ParseException {
+		if(pe.hasExifTags() && pe.getExifTags() != null) {
+			ExifTags e = pe.getExifTags();
+
+			// debug(e+"");
+			
+			/*
+			Utils.describe(e);
+			for(ExifTag tag: e.getExifTags()) {
+				info(tag.getName() + ":" + tag.getValue());
+			}
+			for(List<Extension> l: e.getRepeatingExtensions()) {
+				for(Extension ex: l) {
+					if(ex instanceof ExifTag) {
+						ExifTag t = (ExifTag) ex;
+						info(t.getName() + ":" + t.getValue());
+					}
 				}
 			}
-		}
-		*/
+			*/
 
-		String a = null;
-		String exif = 
+			String a = null;
+			String exif = 
 				"<pre>" +
 				(e.getTime() != null ? "Create Date                     :"+ (e.getTime() != null ? sdf.format(e.getTime()) : "") + "\n" : "") +
 				(pe != null && pe.getTitle() != null ? "File Name                       :" + pe.getTitle().getPlainText() + "\n" : "") +
@@ -425,6 +422,9 @@ public class Application extends Controller {
 				(a != null ? "Image Width                     :" + a + "\n" : "" ) +
 				(a != null ? "Image Height                    :" + a : "") +
 				"</pre>";
-		return exif;
+			return new Html(exif);
+		} else {
+			return new Html("<pre>No EXIF tags.</pre>");
+		}
 	}
 }
