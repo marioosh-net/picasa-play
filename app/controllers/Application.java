@@ -51,8 +51,10 @@ public class Application extends Controller {
 	static private PicasawebService myService;
 
 	public static void loadServices() {
+		
 		try {
 			info("Loading services...");
+			myServices.clear();
 			Properties p = new Properties();
 			InputStream in =  Application.class.getResourceAsStream("/resources/accounts.properties");
 			if(in != null) {
@@ -66,7 +68,7 @@ public class Application extends Controller {
 					l.add(new String[]{k+"", p.getProperty(k)});
 					PicasawebService myService = new PicasawebService("testApp");			
 					myService.setUserCredentials(k+"", p.getProperty(k));
-					controllers.Application.myServices.add(myService);
+					myServices.add(myService);
 				}
 			
 			} else {
@@ -78,12 +80,12 @@ public class Application extends Controller {
 		}		
 	}
 	
-	public static Result logout() throws MalformedURLException {
+	public static Result logout() throws IOException, ServiceException {
 		session().clear();
 		return ok(albums.render(getAlbums(), null));
 	}
 	
-	public static Result login(String hash) throws MalformedURLException {
+	public static Result login(String hash) throws IOException, ServiceException {
 		if(hash.equals("password")) {
 			session("user", "admin");
 			return ok(albums.render(getAlbums(), null));
@@ -126,18 +128,25 @@ public class Application extends Controller {
 		albumsPartial(null);
 		return ok(albums.render(l, message));
 	}
-	
+
 	public static Result albumsPartial(String message) throws IOException, ServiceException {
 		debug("LOGGED: " + session("user"));
-		return ok(albums.render(getAlbums(), message));
+		try {
+			return ok(albums.render(getAlbums(), message));
+		} catch (ServiceForbiddenException e) {
+			error(e.getMessage(), e);
+			loadServices();
+			return redirect("/");
+		} 
 	}
 	
 	/**
 	 * album list
 	 * @return
-	 * @throws MalformedURLException
+	 * @throws ServiceException 
+	 * @throws IOException 
 	 */
-	public static List<Album> getAlbums() throws MalformedURLException {
+	public static List<Album> getAlbums() throws IOException, ServiceException {
 		info("Getting albums list...");
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album,tag&thumbsize="+THUMB_SIZE+"&fields=entry(title,id,gphoto:id,gphoto:numphotos,media:group/media:thumbnail,media:group/media:keywords)");
 		Query albumQuery = new Query(feedUrl);
@@ -146,29 +155,22 @@ public class Application extends Controller {
 		int i = 0;
 		for(PicasawebService s: myServices) {
 			debug(feedUrl.toString());			
-			try {
-				UserFeed feed = s.query(albumQuery, UserFeed.class);
-				for (GphotoEntry e : feed.getEntries()) {
-					// Utils.describe(e);
-					if(e.getGphotoId() != null) {
-						
-						if(session("user") != null || e.getTitle().getPlainText().endsWith("\u00A0")) {
-							String t = e.getTitle().getPlainText();
-							if(t.length() > 40) {
-								t = t.substring(0, 39)+"...";
-							}
-							l.add(new Album(e.getGphotoId(), t, e.getExtension(MediaGroup.class).getThumbnails().get(0).getUrl(), e.getExtension(GphotoPhotosUsed.class).getValue(), i, e.getTitle().getPlainText().endsWith("\u00A0")));
+			UserFeed feed = s.query(albumQuery, UserFeed.class);
+			for (GphotoEntry e : feed.getEntries()) {
+				// Utils.describe(e);
+				if(e.getGphotoId() != null) {
+					
+					if(session("user") != null || e.getTitle().getPlainText().endsWith("\u00A0")) {
+						String t = e.getTitle().getPlainText();
+						if(t.length() > 40) {
+							t = t.substring(0, 39)+"...";
 						}
-					} else {
-						// tag... (?kind=album,tag)
-						debug("album TAG: "+e.getTitle().getPlainText());
+						l.add(new Album(e.getGphotoId(), t, e.getExtension(MediaGroup.class).getThumbnails().get(0).getUrl(), e.getExtension(GphotoPhotosUsed.class).getValue(), i, e.getTitle().getPlainText().endsWith("\u00A0")));
 					}
+				} else {
+					// tag... (?kind=album,tag)
+					debug("album TAG: "+e.getTitle().getPlainText());
 				}
-			} catch (ServiceForbiddenException e) {
-				loadServices();
-				e.printStackTrace();
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
 			i++;
 		}
