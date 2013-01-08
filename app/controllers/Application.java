@@ -3,6 +3,8 @@ package controllers;
 import static play.Logger.debug;
 import static play.Logger.error;
 import static play.Logger.info;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -60,7 +62,12 @@ public class Application extends Controller {
 			info("Loading services...");
 			myServices.clear();
 			Properties p = new Properties();
-			InputStream in =  Application.class.getResourceAsStream("/resources/accounts.properties");
+			InputStream in;			
+			if(System.getProperty("accounts") != null && new File(System.getProperty("accounts")).canRead()) {
+				in =  new FileInputStream(new File(System.getProperty("accounts")));
+			} else {
+				in =  Application.class.getResourceAsStream("/resources/accounts.properties");
+			}
 			if(in != null) {
 				p.load(in);
 				in.close();
