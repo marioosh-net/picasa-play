@@ -43,6 +43,9 @@
 		            @if(session.get("user") != null && album.isPub()) {
 		            	<span style="color: #5CCCCC; font-weight: bold;">pub</span>
 		            }
+		            @if(session.get("user")) {
+		              <br/><span style="color: #CCCCCC; font-size: 10px;">@album.getServiceUser()</span>
+		            }
 		        </div>
 		     </a>
            }

@@ -54,6 +54,7 @@ public class Application extends Controller {
 	static final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
 	static public List<PicasawebService> myServices = new ArrayList<PicasawebService>();
+	static public List<String> myServicesLogins = new ArrayList<String>();
 	static private PicasawebService myService;
 
 	public static void loadServices() {
@@ -61,6 +62,7 @@ public class Application extends Controller {
 		try {
 			info("Loading services...");
 			myServices.clear();
+			myServicesLogins.clear();
 			Properties p = new Properties();
 			InputStream in;			
 			if(System.getProperty("accounts") != null && new File(System.getProperty("accounts")).canRead()) {
@@ -80,6 +82,7 @@ public class Application extends Controller {
 					PicasawebService myService = new PicasawebService("testApp");			
 					myService.setUserCredentials(k+"", p.getProperty(k));
 					myServices.add(myService);
+					myServicesLogins.add(k+"");
 				}
 			
 			} else {
@@ -118,29 +121,6 @@ public class Application extends Controller {
 	}
 	
 	public static Result albums(String message) throws IOException, ServiceException {
-		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album&thumbsize="+THUMB_SIZE);
-		
-		List<Album> l = new ArrayList<Album>();		
-		int i = 0;
-		for(PicasawebService s: myServices) {
-			UserFeed feed = s.getFeed(feedUrl, UserFeed.class);
-			for(AlbumEntry a: feed.getAlbumEntries()) {
-				String id = a.getId().substring(a.getId().lastIndexOf('/')+1);
-				l.add(new Album(id, a.getTitle().getPlainText(), a.getMediaThumbnails().get(0).getUrl(), a.getPhotosUsed(), i, a.getTitle().getPlainText().endsWith("\u00A0")));
-			}
-		i++;
-		}
-		Collections.sort(l, new Comparator<Album>() {
-			@Override
-			public int compare(Album o1, Album o2) {
-				return o1.getTitle().compareTo(o2.getTitle());
-			}});
-		
-		albumsPartial(null);
-		return ok(albums.render(l, message));
-	}
-
-	public static Result albumsPartial(String message) throws IOException, ServiceException {
 		debug("LOGGED: " + session("user"));
 		try {
 			return ok(albums.render(getAlbums(), message));
@@ -176,7 +156,7 @@ public class Application extends Controller {
 						if(t.length() > 40) {
 							t = t.substring(0, 39)+"...";
 						}
-						l.add(new Album(e.getGphotoId(), t, e.getExtension(MediaGroup.class).getThumbnails().get(0).getUrl(), e.getExtension(GphotoPhotosUsed.class).getValue(), i, e.getTitle().getPlainText().endsWith("\u00A0")));
+						l.add(new Album(e.getGphotoId(), t, e.getExtension(MediaGroup.class).getThumbnails().get(0).getUrl(), e.getExtension(GphotoPhotosUsed.class).getValue(), i, e.getTitle().getPlainText().endsWith("\u00A0"), myServicesLogins.get(i)));
 					}
 				} else {
 					// tag... (?kind=album,tag)

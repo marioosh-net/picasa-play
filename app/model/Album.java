@@ -6,16 +6,18 @@ public class Album {
 	private String id;
 	private int count;
 	private int serviceIndex;
+	private String serviceUser;
 	private String thumbnailUrl;
 	private boolean pub;
 	
-	public Album(String id, String title, String thumbnailUrl, int count, int serviceIndex, boolean pub) {
+	public Album(String id, String title, String thumbnailUrl, int count, int serviceIndex, boolean pub, String serviceUser) {
 		this.id = id;
 		this.title = title;
 		this.count = count;
 		this.serviceIndex = serviceIndex;
 		this.thumbnailUrl = thumbnailUrl;
 		this.pub = pub;
+		this.serviceUser = serviceUser;
 	}
 
 	public String getTitle() {
@@ -72,5 +74,14 @@ public class Album {
 	
 	public void setPub(boolean pub) {
 		this.pub = pub;
+	}
+	
+	
+	public String getServiceUser() {
+		return serviceUser;
+	}
+	
+	public void setServiceUser(String serviceUser) {
+		this.serviceUser = serviceUser;
 	}
 }
