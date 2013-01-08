@@ -49,7 +49,11 @@ function filter(s) {
 	$('#albums-only a').each(function(){
 		if($(this).attr('title').toUpperCase().indexOf(s.toUpperCase()) >= 0) {
 			/*$('#debug').html($('#debug').html()+ ' GOOD: ' + $(this).attr('title'));*/
-			$(this).show();
+			if(!$('#bpub').hasClass('on') || ($('#bpub').hasClass('on') && $(this).hasClass('pub'))) {
+				$(this).show();
+			} else {
+				$(this).hide();
+			}
 		} else {
 			/*$('#debug').html($('#debug').html()+ ' NOT: ' + $(this).attr('title'));*/
 			$(this).hide();

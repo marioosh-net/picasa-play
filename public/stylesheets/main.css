@@ -873,3 +873,6 @@ div.message {
     background-color: #AAA;
     border-bottom: 1px solid #ddd;
 }
+a.on {
+    color: #5CCCCC !important;	
+}
