@@ -47,7 +47,6 @@ import com.google.gdata.util.ParseException;
 import com.google.gdata.util.ServiceException;
 import com.google.gdata.util.ServiceForbiddenException;
 
-@With(ForceHttps.class)
 public class Application extends Controller {
 	
 	static final String THUMB_SIZE = "104c,72c,800";
