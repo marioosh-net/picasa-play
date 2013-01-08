@@ -48,6 +48,7 @@ public class Application extends Controller {
 	
 	static final String THUMB_SIZE = "104c,72c,800";
 	static final String IMG_SIZE = "1600";//"d";
+	static final String ADMIN_PASSWORD = play.Play.application().configuration().getString("admin.password");
 	static final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
 	static public List<PicasawebService> myServices = new ArrayList<PicasawebService>();
@@ -89,7 +90,7 @@ public class Application extends Controller {
 	}
 	
 	public static Result login(String hash) throws IOException, ServiceException {
-		if(hash.equals("password")) {
+		if(hash.equals(ADMIN_PASSWORD)) {
 			session("user", "admin");
 			return ok(albums.render(getAlbums(), null));
 		}
