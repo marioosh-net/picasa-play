@@ -41,15 +41,15 @@
             </div>
 	    
 	       <div id="albums-only">
-           @for(album <- albums) {
-            <a onclick="$('.oneset').removeClass('album-selected'); $(this).find('div').addClass('album-selected'); $('#exif').html(''); loading('#right'); $('#right').load('/album/@album.getServiceIndex()/@album.getId()'); return false;" href="#" title="@album.getTitle()" class="@if(album.isPub()){pub}" >
-		        <div class="oneset oneset_@album.getId()">
-		            @album.getTitle()@*<span class="counts">(@album.getCount())</span>*@
-		            @if(session.get("user") != null && album.isPub()) {
-		            	<span style="color: #5CCCCC; font-weight: bold;">pub</span>
+	       @for(i <- albums.indices) {
+            <a onclick="$('.oneset').removeClass('album-selected'); $(this).find('div').addClass('album-selected'); $('#exif').html(''); loading('#right'); $('#right').load('/album/@albums(i).getServiceIndex()/@albums(i).getId()'); return false;" href="#" title="@albums(i).getTitle()" class="@if(albums(i).isPub()){pub}" >
+		        <div id="uu@i" class="oneset oneset_@albums(i).getId()">
+		            @albums(i).getTitle()@*<span class="counts">(@albums(i).getCount())</span>*@
+		            @if(session.get("user") != null) {
+		            	<span class="pubi" style="color: #5CCCCC; font-weight: bold; @if(!albums(i).isPub()){display: none;}">pub</span>
 		            }
-		            @if(session.get("user")) {
-		              <br/><span style="color: #CCCCCC; font-size: 10px;">@album.getServiceUser()</span>
+		            @if(session.get("user") != null) {
+		              <br/><span style="color: #CCCCCC; font-size: 10px;">@albums(i).getServiceUser()</span>
 		            }
 		        </div>
 		     </a>

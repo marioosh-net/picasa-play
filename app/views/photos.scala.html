@@ -9,8 +9,8 @@
         <a href="/">albumy</a>&nbsp;&raquo;&nbsp; <a href="/direct/@session.get("si")/@session.get("ai")">@session.get("aname")@*@feed.getTitle().getPlainText()*@</a>
         @if(session.get("user") != null) {
         <span class="album_options">
-        <a id="pubal" href="#" style="@if(session.get("pub") != null){display: none;}" onclick="$.ajax({url: '/pub/@session.get("si")/@session.get("ai")'}).done(function(r) {if(r == '0') {$('#prival').hide();$('#pubal').show();} else {$('#prival').show();$('#pubal').hide();}}); return false;">public</a>
-        <a id="prival" href="#" style="@if(session.get("pub") == null){display: none;}" onclick="$.ajax({url: '/priv/@session.get("si")/@session.get("ai")'}).done(function(r) {if(r == '0') {$('#prival').hide();$('#pubal').show();} else {$('#prival').show();$('#pubal').hide();}}); return false;">private</a>
+        <a id="pubal" href="#" style="@if(session.get("pub") != null){display: none;}" onclick="$.ajax({url: '/pub/@session.get("si")/@session.get("ai")'}).done(function(r) {if(r == '0') {$('#prival').hide();$('#pubal').show(); $('div.album-selected').parent().removeClass('pub'); $('div.album-selected').find('span.pubi').hide();} else {$('#prival').show();$('#pubal').hide(); $('div.album-selected').parent().addClass('pub'); $('div.album-selected').find('span.pubi').show();}}); return false;">public</a>
+        <a id="prival" href="#" style="@if(session.get("pub") == null){display: none;}" onclick="$.ajax({url: '/priv/@session.get("si")/@session.get("ai")'}).done(function(r) {if(r == '0') {$('#prival').hide();$('#pubal').show(); $('div.album-selected').parent().removeClass('pub'); $('div.album-selected').find('span.pubi').hide();} else {$('#prival').show();$('#pubal').hide(); $('div.album-selected').parent().addClass('pub'); $('div.album-selected').find('span.pubi').show();}}); return false;">private</a>
         </span>
         }
     </div>

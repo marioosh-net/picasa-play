@@ -9,7 +9,7 @@
                 
                 @for(i <- albums.indices) {
 		            <div class="thumb_box" title="@albums(i).getTitle()">
-		                <a href="#" onclick="$('#exif').html(''); loading('#right'); $('#right').load('/album/@albums(i).getServiceIndex()/@albums(i).getId()'); return false;" class="thumb_link">
+		                <a href="#" onclick="$('.oneset').removeClass('album-selected'); $('#uu@i').addClass('album-selected'); $('#exif').html(''); loading('#right'); $('#right').load('/album/@albums(i).getServiceIndex()/@albums(i).getId()'); return false;" class="thumb_link">
 		                    <div id="t@i" class="thumb" style="background-image: url('@routes.Assets.at("images/ajax-loader7.gif")'); background-position: 50% 50%; "></div>
 		                    <div id="u@i" class="thumb thumb_box_cover" style="display: none; float: none; background-image: url('@albums(i).getThumbnailUrl()');"></div>
 		                    <img style="display: none;" src="@albums(i).getThumbnailUrl()" onload="$('#t@i').hide(); $('#u@i').show();">
