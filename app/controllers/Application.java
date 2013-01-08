@@ -21,6 +21,7 @@ import model.Photo;
 import play.api.templates.Html;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.With;
 import scala.actors.threadpool.Arrays;
 import views.html.albums;
 import views.html.albumslist;
@@ -46,6 +47,7 @@ import com.google.gdata.util.ParseException;
 import com.google.gdata.util.ServiceException;
 import com.google.gdata.util.ServiceForbiddenException;
 
+@With(ForceHttps.class)
 public class Application extends Controller {
 	
 	static final String THUMB_SIZE = "104c,72c,800";
