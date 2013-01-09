@@ -152,7 +152,7 @@ public class Application extends Controller {
 	 */
 	public static List<Album> getAlbums() throws IOException, ServiceException {
 		info("Getting albums list...");
-		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album,tag&thumbsize="+THUMB_SIZE+"&fields=entry(title,id,gphoto:id,gphoto:numphotos,media:group/media:thumbnail,media:group/media:keywords)");
+		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album&thumbsize="+THUMB_SIZE+"&fields=entry(title,id,gphoto:id,gphoto:numphotos,media:group/media:thumbnail,media:group/media:keywords)");
 		Query albumQuery = new Query(feedUrl);
 		
 		List<Album> l = new ArrayList<Album>();		
