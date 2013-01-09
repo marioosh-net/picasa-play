@@ -128,6 +128,9 @@ public class Application extends Controller {
 	
 	public static Result albums(String message) throws IOException, ServiceException {
 		debug("LOGGED: " + session("user"));
+		if(request().queryString().get("lang") != null) {
+			response().setCookie("lang", request().queryString().get("lang")[0]);
+		}		
 		try {
 			return ok(albums.render(getAlbums(), message));
 		} catch (ServiceForbiddenException e) {
