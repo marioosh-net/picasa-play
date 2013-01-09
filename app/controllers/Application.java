@@ -59,7 +59,7 @@ public class Application extends Controller {
 	static public List<String> myServicesLogins = new ArrayList<String>();
 	static private PicasawebService myService;
 
-	public static void loadServices() {
+	public static void loadServices() throws NoAccountsException {
 		
 		try {
 			info("Loading services...");
@@ -70,30 +70,34 @@ public class Application extends Controller {
 			if(System.getProperty("accounts") != null && new File(System.getProperty("accounts")).canRead()) {
 				in =  new FileInputStream(new File(System.getProperty("accounts")));
 			} else {
-				in =  Application.class.getResourceAsStream("/resources/accounts.properties");
-			}
-			if(in != null) {
-				p.load(in);
-				in.close();
-			
-				Enumeration e = p.propertyNames();
-				List<String[]> l = new ArrayList<String[]>();
-				while(e.hasMoreElements()) {
-					String k = (String) e.nextElement();
-					l.add(new String[]{k+"", p.getProperty(k)});
-					PicasawebService myService = new PicasawebService("testApp");			
-					myService.setUserCredentials(k+"", p.getProperty(k));
-					myServices.add(myService);
-					myServicesLogins.add(k+"");
+				if(new File(".", "accounts.properties").canRead()) {
+					in = new FileInputStream(new File(".", "accounts.properties"));
+				} else {
+					in =  Application.class.getResourceAsStream("/resources/accounts.properties");
 				}
+			}
+
+			p.load(in);
+			in.close();
+		
+			Enumeration e = p.propertyNames();
+			List<String[]> l = new ArrayList<String[]>();
+			while(e.hasMoreElements()) {
+				String k = (String) e.nextElement();
+				l.add(new String[]{k+"", p.getProperty(k)});
+				PicasawebService myService = new PicasawebService("testApp");			
+				myService.setUserCredentials(k+"", p.getProperty(k));
+				myServices.add(myService);
+				myServicesLogins.add(k+"");
+			}
 			
-			} else {
-				error("null inputstream");
+			if(myServices.size() == 0) {
+				throw new NoAccountsException();
 			}
 			
 		} catch (Exception e) {
-			e.printStackTrace();
-		}		
+			throw new NoAccountsException(e);
+		}
 	}
 	
 	public static Result logout() throws IOException, ServiceException {
@@ -126,7 +130,7 @@ public class Application extends Controller {
 		return ok(token.render(sessionToken));
 	}
 	
-	public static Result albums(String message) throws IOException, ServiceException {
+	public static Result albums(String message) throws IOException, ServiceException, NoAccountsException {
 		debug("LOGGED: " + session("user"));
 		if(request().queryString().get("lang") != null) {
 			response().setCookie("lang", request().queryString().get("lang")[0]);

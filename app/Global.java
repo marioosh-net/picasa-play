@@ -1,4 +1,5 @@
 import static play.mvc.Results.notFound;
+import controllers.NoAccountsException;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
@@ -10,7 +11,11 @@ public class Global extends GlobalSettings {
 
 	@Override
 	public void onStart(Application app) {
-		controllers.Application.loadServices();
+		try {
+			controllers.Application.loadServices();
+		} catch (NoAccountsException e) {
+			Logger.error("NO ACCOUNTS. Create accounts.properties in current directory.");
+		}
 		Logger.info("Application has started");		
 	}
 
