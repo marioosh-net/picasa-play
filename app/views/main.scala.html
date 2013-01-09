@@ -51,7 +51,7 @@
 			             <a href="/logout" >Logout</a>
 			            } else {
 			            <span id="form" style="display: none;"><form id="f" method="post" action="/login" style="display: inline;"><input name="pass" type="password" value=""/>&nbsp;<a href="#" onclick="$('#f').submit();">OK</a>|<a href="#" onclick="$('#form').hide(); $('#loginb').show();">Cancel</a><input type="submit" value="Login" style="display: none;"/></form></span>
-			                    <a id="loginb" href="#" onclick="$('#form').toggle(); $(this).toggle();">Login</a>
+			                    <a id="loginb" href="#" onclick="$('#form').toggle(); $(this).toggle();">@Messages("login")</a>
 			                }
 			                &nbsp;<a href="/?lang=pl">PL</a>|<a href="/?lang=en">EN</a>                   
 			            </div>
@@ -69,7 +69,7 @@
 	                    
 				        <div id="footer-right">
 				            Inspired by <a href="http://minishowcase.net">minishowcase</a>. Powered by <a href="http://www.playframework.org/"><img style="vertical-align: text-bottom;" src="@routes.Assets.at("images/play.png")"></a>&nbsp;|&nbsp;<a href="http://marioosh.net">marioosh.net</a>
-				            <br>Images presented on this site may not be used without permission
+				            <br>@Messages("license")
 				            <div class="left"></div>
 				            <div class="right"></div>
 				            <div class="clear"></div>
