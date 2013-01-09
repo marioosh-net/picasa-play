@@ -3,7 +3,7 @@
 # ~~~~
 
 # Home page
-GET     /login                                      controllers.Application.login(pass)
+POST     /login                                      controllers.Application.login()
 GET     /logout                                     controllers.Application.logout()
 GET     /                                           controllers.Application.albums(message ?="")
 GET     /album/:serviceIndex/:albumId               controllers.Application.photos(serviceIndex:Int, albumId, start:Int ?=1, max:Int ?=24)
