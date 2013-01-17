@@ -99,7 +99,7 @@ public class Application extends Controller {
 	
 	public static Result logout() throws IOException, ServiceException {
 		session().clear();
-		return ok(albums.render(getAlbums(), null));
+		return ok(albums.render(getAlbums()));
 	}
 	
 	public static Result login() throws IOException, ServiceException {
@@ -108,7 +108,6 @@ public class Application extends Controller {
 	    final String hash = values.get("pass")[0];
 		if(hash.equals(ADMIN_PASSWORD)) {
 			session("user", "admin");
-			// return ok(albums.render(getAlbums(), null));			
 			session("role", Role.ADMIN.name());
 			return redirect("/");
 		} else if(hash.equals(USER_PASSWORD)) {
@@ -116,16 +115,17 @@ public class Application extends Controller {
 			session("role", Role.USER.name());
 			return redirect("/");
 		}
-		return ok(albums.render(getAlbums(), "login error"));
+		flash("message", "login error");
+		return ok(albums.render(getAlbums()));
 	}
 	
-	public static Result albums(String message) throws IOException, ServiceException, NoAccountsException {
+	public static Result albums() throws IOException, ServiceException, NoAccountsException {
 		Logger.debug("LOGGED: " + session("user"));
 		if(request().queryString().get("lang") != null) {
 			response().setCookie("lang", request().queryString().get("lang")[0]);
 		}		
 		try {
-			return ok(albums.render(getAlbums(), message));
+			return ok(albums.render(getAlbums()));
 		} catch (ServiceForbiddenException e) {
 			Logger.error(e.getMessage(), e);
 			loadServices();
@@ -176,7 +176,7 @@ public class Application extends Controller {
 	}
 
 	public static Result direct(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
-		return ok(main.render(albumId+"", null, albumslist.render(getAlbums()), photosHtml(serviceIndex, albumId, start, max)));
+		return ok(main.render(albumId+"", albumslist.render(getAlbums()), photosHtml(serviceIndex, albumId, start, max)));
 		// return ok("DIRECT");
 	}
 	

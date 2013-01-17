@@ -1,4 +1,4 @@
-@(title: String, message: String)(content: Html)(contentright: Html)
+@(title: String)(content: Html)(contentright: Html)
 <!DOCTYPE html>
 <html>
     <head>
@@ -38,8 +38,8 @@
                         @content
 	                </div>
 	                <div class="right rightfixed">
-	                   @if(message != null) {
-                        <div class="message">@message</div>
+	                   @if(flash.get("message") != null) {
+                        <div class="message">@flash.get("message")</div>
                         }	                
                         <div id="header">
                           <div class="left" style="padding-top: 10px;">
