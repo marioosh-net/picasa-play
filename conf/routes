@@ -12,8 +12,6 @@ GET     /pub/:serviceIndex/:albumId/:photoId        controllers.Application.pub(
 GET     /priv/:serviceIndex/:albumId/:photoId       controllers.Application.priv(serviceIndex:Int, albumId, photoId)
 GET     /pub/:serviceIndex/:albumId                 controllers.Application.pubAlbum(serviceIndex:Int, albumId)
 GET     /priv/:serviceIndex/:albumId                controllers.Application.privAlbum(serviceIndex:Int, albumId)
-GET     /auth                                       controllers.Application.auth()
-GET     /token                                      controllers.Application.token(token)
 GET     /exif/:serviceIndex/:albumId/:photoId       controllers.Application.exif(serviceIndex:Int, albumId, photoId)
 GET     /test                                       controllers.Test.loadTestData(count:Int ?=1, create:Boolean ?=false)
 GET     /test/:count                                controllers.Test.loadTestData(count:Int, create:Boolean ?=false)

@@ -1,14 +1,10 @@
 package controllers;
 
-import static play.Logger.debug;
-import static play.Logger.error;
-import static play.Logger.info;
 import interceptors.Logged;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,21 +14,19 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import others.Role;
 import model.Album;
 import model.Photo;
+import others.Role;
+import play.Logger;
 import play.api.templates.Html;
 import play.mvc.Controller;
 import play.mvc.Result;
-import play.mvc.With;
 import scala.actors.threadpool.Arrays;
 import views.html.albums;
 import views.html.albumslist;
 import views.html.main;
 import views.html.photos;
-import views.html.token;
 import com.google.gdata.client.Query;
-import com.google.gdata.client.http.AuthSubUtil;
 import com.google.gdata.client.photos.PicasawebService;
 import com.google.gdata.data.PlainTextConstruct;
 import com.google.gdata.data.media.mediarss.MediaGroup;
@@ -65,7 +59,7 @@ public class Application extends Controller {
 	public static void loadServices() throws NoAccountsException {
 		
 		try {
-			info("Loading services...");
+			Logger.info("Loading services...");
 			myServices.clear();
 			myServicesLogins.clear();
 			Properties p = new Properties();
@@ -125,28 +119,15 @@ public class Application extends Controller {
 		return ok(albums.render(getAlbums(), "login error"));
 	}
 	
-	public static Result auth() {
-		myService = new PicasawebService("testApp");
-		String requestUrl = AuthSubUtil.getRequestUrl("http://localhost:9000/token", "https://picasaweb.google.com/data/", false, true);
-		info(requestUrl);
-		return redirect(requestUrl);
-	}
-	
-	public static Result token(String sessionToken) {
-		info("TOKEN:" + sessionToken);
-		myService.setAuthSubToken(sessionToken, null);
-		return ok(token.render(sessionToken));
-	}
-	
 	public static Result albums(String message) throws IOException, ServiceException, NoAccountsException {
-		debug("LOGGED: " + session("user"));
+		Logger.debug("LOGGED: " + session("user"));
 		if(request().queryString().get("lang") != null) {
 			response().setCookie("lang", request().queryString().get("lang")[0]);
 		}		
 		try {
 			return ok(albums.render(getAlbums(), message));
 		} catch (ServiceForbiddenException e) {
-			error(e.getMessage(), e);
+			Logger.error(e.getMessage(), e);
 			loadServices();
 			return redirect("/");
 		} 
@@ -159,14 +140,14 @@ public class Application extends Controller {
 	 * @throws IOException 
 	 */
 	public static List<Album> getAlbums() throws IOException, ServiceException {
-		info("Getting albums list...");
+		Logger.info("Getting albums list...");
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album&thumbsize="+THUMB_SIZE+"&fields=entry(title,id,gphoto:id,gphoto:numphotos,media:group/media:thumbnail,media:group/media:keywords)");
 		Query albumQuery = new Query(feedUrl);
 		
 		List<Album> l = new ArrayList<Album>();		
 		int i = 0;
 		for(PicasawebService s: myServices) {
-			debug(feedUrl.toString());			
+			Logger.debug(feedUrl.toString());			
 			UserFeed feed = s.query(albumQuery, UserFeed.class);
 			for (GphotoEntry e : feed.getEntries()) {
 				// Utils.describe(e);
@@ -181,7 +162,7 @@ public class Application extends Controller {
 					}
 				} else {
 					// tag... (?kind=album,tag)
-					debug("album TAG: "+e.getTitle().getPlainText());
+					Logger.debug("album TAG: "+e.getTitle().getPlainText());
 				}
 			}
 			i++;
@@ -214,7 +195,7 @@ public class Application extends Controller {
 	}
 	
 	private static Html photosHtml(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
-		info("Getting photos list...");
+		Logger.info("Getting photos list...");
 		myService = myServices.get(serviceIndex);
 		session("si", serviceIndex+"");
 		session("ai", albumId+"");
@@ -229,7 +210,7 @@ public class Application extends Controller {
 				//+(session("user") != null ? "" : "&tag=public") /* to rozsortowuje kolejnosc fotek! */
 				//+,exif:tags)"*/
 				);
-		debug(feedUrl.toString());
+		Logger.debug(feedUrl.toString());
 		Query photosQuery = new Query(feedUrl);
 		
 		// AlbumFeed feed = myService.getFeed(feedUrl, AlbumFeed.class);		
@@ -242,9 +223,9 @@ public class Application extends Controller {
 		
 		String t = feed.getTitle().getPlainText();
 		session("aname", t);
-		debug("total:"+feed.getTotalResults());
-		debug("perPage:"+feed.getItemsPerPage());
-		debug("start:"+feed.getStartIndex());
+		Logger.debug("total:"+feed.getTotalResults());
+		Logger.debug("perPage:"+feed.getItemsPerPage());
+		Logger.debug("start:"+feed.getStartIndex());
 		java.util.HashMap<String, Integer> map = new java.util.HashMap<String, Integer>();
 		map.put("total",feed.getTotalResults());
 		map.put("start",feed.getStartIndex());
@@ -259,19 +240,19 @@ public class Application extends Controller {
 		List<Photo> lp = new ArrayList<Photo>();
 		for(GphotoEntry<PhotoEntry> e: feed.getEntries()) {
 			// Utils.describe(e);
-			// debug("EXTENSIONS:" + e.getExtensions()+"");
+			// Logger.debug("EXTENSIONS:" + e.getExtensions()+"");
 			MediaGroup g = e.getExtension(MediaGroup.class);
 			ExifTags exif = e.getExtension(ExifTags.class);
 			//Utils.describe(exif);
 			
 			if(g != null) {
 				/*
-				debug(g.getContents().size()+"");
-				debug(g.getThumbnails().size()+"");
-				debug("thumbs:"+g.getThumbnails().get(0).getUrl());
-				debug("thumbs:"+g.getThumbnails().get(1).getUrl());
-				debug("thumbs:"+g.getThumbnails().get(2).getUrl());
-				debug("orig:"+g.getContents().get(0).getUrl());
+				Logger.debug(g.getContents().size()+"");
+				Logger.debug(g.getThumbnails().size()+"");
+				Logger.debug("thumbs:"+g.getThumbnails().get(0).getUrl());
+				Logger.debug("thumbs:"+g.getThumbnails().get(1).getUrl());
+				Logger.debug("thumbs:"+g.getThumbnails().get(2).getUrl());
+				Logger.debug("orig:"+g.getContents().get(0).getUrl());
 				*/
 				boolean pub = g.getKeywords().getKeywords().contains("public");
 				if(session("user") != null || pub) {
@@ -286,7 +267,7 @@ public class Application extends Controller {
 				}
 			}
 		}
-		// debug("TITLE:"+feed.getTitle()+"");
+		// Logger.debug("TITLE:"+feed.getTitle()+"");
 		// return ok(photos.render(feed, (List<GphotoEntry<PhotoEntry>>)feed.getEntries<PhotoEntry>(), l));
 		return photos.render(feed, lp, null, map, pages);
 	}
@@ -303,7 +284,7 @@ public class Application extends Controller {
 	@Logged(Role.ADMIN)
 	public static Result pub(int serviceIndex, String albumId, String photoId) throws IOException, ServiceException {
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"/photoid/"+photoId);
-		debug(feedUrl+"");
+		Logger.debug(feedUrl+"");
 		TagEntry myTag = new TagEntry(); 
 		myTag.setTitle(new PlainTextConstruct("public"));
 		myServices.get(serviceIndex).insert(feedUrl, myTag);
@@ -328,7 +309,7 @@ public class Application extends Controller {
 		
 		/*
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"/photoid/"+photoId+"?kind=tag&tag=public");
-		debug(feedUrl+"");
+		Logger.debug(feedUrl+"");
 		Query photosQuery = new Query(feedUrl);
 		AlbumFeed searchResultsFeed = myServices.get(serviceIndex).query(photosQuery, AlbumFeed.class);
 		for (TagEntry tag : searchResultsFeed.getTagEntries()) {
@@ -359,7 +340,7 @@ public class Application extends Controller {
 	@Logged(Role.ADMIN)
 	public static Result pubAlbum(int serviceIndex, String albumId) throws IOException, ServiceException {
 		URL feedUrl = new URL("https://picasaweb.google.com/data/entry/api/user/default/albumid/"+albumId);
-		debug(feedUrl+"");
+		Logger.debug(feedUrl+"");
 		AlbumEntry ae = myServices.get(serviceIndex).getEntry(feedUrl, AlbumEntry.class);
 		ae.setTitle(new PlainTextConstruct(ae.getTitle().getPlainText()+"\u00A0"));
 		ae.update();
@@ -377,7 +358,7 @@ public class Application extends Controller {
 	@Logged(Role.ADMIN)
 	public static Result privAlbum(int serviceIndex, String albumId) throws IOException, ServiceException {
 		URL feedUrl = new URL("https://picasaweb.google.com/data/entry/api/user/default/albumid/"+albumId);
-		debug(feedUrl+"");
+		Logger.debug(feedUrl+"");
 		AlbumEntry ae = myServices.get(serviceIndex).getEntry(feedUrl, AlbumEntry.class);
 		ae.setTitle(new PlainTextConstruct(ae.getTitle().getPlainText().replaceAll("\u00A0", "").replaceAll("\\+", "")));
 		ae.update();
@@ -387,7 +368,7 @@ public class Application extends Controller {
 	public static Result exif(int serviceIndex, String albumId, String photoId) throws IOException, ServiceException {
 		URL feedUrl = new URL("https://picasaweb.google.com/data/entry/api/user/default/albumid/"+albumId+"/photoid/"+photoId+
 				"?fields=exif:tags,title");
-		// debug(feedUrl+"");
+		// Logger.debug(feedUrl+"");
 		PhotoEntry pe = myServices.get(serviceIndex).getEntry(feedUrl, PhotoEntry.class);
 		return ok(exifTagsHtml(pe));
 	}
@@ -396,18 +377,18 @@ public class Application extends Controller {
 		if(pe.hasExifTags() && pe.getExifTags() != null) {
 			ExifTags e = pe.getExifTags();
 
-			// debug(e+"");
+			// Logger.debug(e+"");
 			
 			/*
 			Utils.describe(e);
 			for(ExifTag tag: e.getExifTags()) {
-				info(tag.getName() + ":" + tag.getValue());
+				Logger.info(tag.getName() + ":" + tag.getValue());
 			}
 			for(List<Extension> l: e.getRepeatingExtensions()) {
 				for(Extension ex: l) {
 					if(ex instanceof ExifTag) {
 						ExifTag t = (ExifTag) ex;
-						info(t.getName() + ":" + t.getValue());
+						Logger.info(t.getName() + ":" + t.getValue());
 					}
 				}
 			}
