@@ -48,6 +48,7 @@
                           
 			            <div class="right" style="margin-top: 10px;">
 			            @if(session.get("user") != null) {
+			             <span class="username">@session.get("user")</span>
 			             <a href="/logout" >Logout</a>
 			            } else {
 			            <span id="form" style="display: none;"><form id="f" method="post" action="/login" style="display: inline;"><input name="pass" type="password" value=""/>&nbsp;<a href="#" onclick="$('#f').submit();">OK</a>|<a href="#" onclick="$('#form').hide(); $('#loginb').show();">Cancel</a><input type="submit" value="Login" style="display: none;"/></form></span>

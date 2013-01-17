@@ -3,6 +3,7 @@ package controllers;
 import static play.Logger.debug;
 import static play.Logger.error;
 import static play.Logger.info;
+import interceptors.Logged;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -17,6 +18,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import others.Role;
 import model.Album;
 import model.Photo;
 import play.api.templates.Html;
@@ -53,6 +55,7 @@ public class Application extends Controller {
 	static final String THUMB_SIZE = "104c,72c,800";
 	static final String IMG_SIZE = "1600";//"d";
 	static final String ADMIN_PASSWORD = play.Play.application().configuration().getString("admin.password");
+	static final String USER_PASSWORD = play.Play.application().configuration().getString("user.password");
 	static final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
 	static public List<PicasawebService> myServices = new ArrayList<PicasawebService>();
@@ -111,7 +114,12 @@ public class Application extends Controller {
 	    final String hash = values.get("pass")[0];
 		if(hash.equals(ADMIN_PASSWORD)) {
 			session("user", "admin");
-			// return ok(albums.render(getAlbums(), null));
+			// return ok(albums.render(getAlbums(), null));			
+			session("role", Role.ADMIN.name());
+			return redirect("/");
+		} else if(hash.equals(USER_PASSWORD)) {
+			session("user", "user");
+			session("role", Role.USER.name());
 			return redirect("/");
 		}
 		return ok(albums.render(getAlbums(), "login error"));
@@ -292,6 +300,7 @@ public class Application extends Controller {
 	 * @throws IOException
 	 * @throws ServiceException
 	 */
+	@Logged(Role.ADMIN)
 	public static Result pub(int serviceIndex, String albumId, String photoId) throws IOException, ServiceException {
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"/photoid/"+photoId);
 		debug(feedUrl+"");
@@ -310,6 +319,7 @@ public class Application extends Controller {
 	 * @throws IOException
 	 * @throws ServiceException
 	 */
+	@Logged(Role.ADMIN)
 	public static Result priv(int serviceIndex, String albumId, String photoId) throws IOException, ServiceException {
 		URL entryUrl = new URL("https://picasaweb.google.com/data/entry/api/user/default/albumid/"+albumId+"/photoid/"+photoId+"/tag/public");
 		TagEntry te = myServices.get(serviceIndex).getEntry(entryUrl, TagEntry.class);
@@ -346,6 +356,7 @@ public class Application extends Controller {
 	 * @throws IOException
 	 * @throws ServiceException
 	 */
+	@Logged(Role.ADMIN)
 	public static Result pubAlbum(int serviceIndex, String albumId) throws IOException, ServiceException {
 		URL feedUrl = new URL("https://picasaweb.google.com/data/entry/api/user/default/albumid/"+albumId);
 		debug(feedUrl+"");
@@ -363,6 +374,7 @@ public class Application extends Controller {
 	 * @throws IOException
 	 * @throws ServiceException
 	 */
+	@Logged(Role.ADMIN)
 	public static Result privAlbum(int serviceIndex, String albumId) throws IOException, ServiceException {
 		URL feedUrl = new URL("https://picasaweb.google.com/data/entry/api/user/default/albumid/"+albumId);
 		debug(feedUrl+"");

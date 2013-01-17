@@ -3,6 +3,7 @@ package controllers;
 import static play.Logger.debug;
 import static play.Logger.error;
 import static play.Logger.info;
+import interceptors.Logged;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import others.Role;
 import com.google.gdata.client.photos.PicasawebService;
 import com.google.gdata.data.PlainTextConstruct;
 import com.google.gdata.data.media.MediaFileSource;
@@ -31,7 +33,8 @@ import play.mvc.Result;
 public class Test extends Controller {
 	
 	static Random random = new Random();
-	
+
+	@Logged(Role.ADMIN)
 	public static Result deleteAllAlbums() {
 		try {
 			URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album");
@@ -48,6 +51,7 @@ public class Test extends Controller {
 		return redirect("/?message=albums deleted");
 	}
 	
+	@Logged(Role.ADMIN)
 	public static Result loadTestData(int count, boolean create) {
 		String address = "http://www.impawards.com/2012/std.html";
 		String outputDir = "data";
