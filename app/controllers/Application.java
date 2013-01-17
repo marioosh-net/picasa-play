@@ -215,7 +215,7 @@ public class Application extends Controller {
 				"&fields=id,title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords),openSearch:totalResults,openSearch:startIndex,openSearch:itemsPerPage"
 				:
 				/* tylko entry z media:keywords='public'*/
-				"&fields=title,openSearch:totalResults,openSearch:startIndex,openSearch:itemsPerPage,entry[media:group/media:keywords='public'](title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords)"
+				"&fields=title,openSearch:totalResults,openSearch:startIndex,openSearch:itemsPerPage,entry[media:group/media:keywords='public'%20or%20media:group/media:keywords='public,%20picnik'%20or%20media:group/media:keywords='picnik,%20public'](title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords)"
 				)+
 				(session("user") != null ? "&max-results="+max+"&start-index="+start : "")
 				//+(session("user") != null ? "" : "&tag=public") /* to rozsortowuje kolejnosc fotek! */
