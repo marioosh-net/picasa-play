@@ -41,6 +41,8 @@ import views.html.main;
 import views.html.photos;
 import com.google.gdata.client.Query;
 import com.google.gdata.client.photos.PicasawebService;
+import com.google.gdata.data.Extension;
+import com.google.gdata.data.Link;
 import com.google.gdata.data.PlainTextConstruct;
 import com.google.gdata.data.media.mediarss.MediaGroup;
 import com.google.gdata.data.photos.AlbumEntry;
@@ -278,6 +280,12 @@ public class Application extends Controller {
 			// Logger.debug("EXTENSIONS:" + e.getExtensions()+"");
 			MediaGroup g = e.getExtension(MediaGroup.class);
 			ExifTags exif = e.getExtension(ExifTags.class);
+			
+			if(session("user") != null) {
+				Link link = e.getLinks().get(0);
+				Logger.info(link+"");
+				Logger.info(link.getHref()+"");
+			}
 			//Utils.describe(exif);
 			
 			if(g != null) {
