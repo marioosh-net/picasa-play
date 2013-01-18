@@ -50,6 +50,7 @@ import com.google.gdata.data.photos.UserFeed;
 import com.google.gdata.util.ParseException;
 import com.google.gdata.util.ServiceException;
 import com.google.gdata.util.ServiceForbiddenException;
+import exceptions.NoAccountsException;
 
 public class Application extends Controller {
 	

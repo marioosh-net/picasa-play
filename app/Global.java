@@ -1,5 +1,5 @@
 import static play.mvc.Results.notFound;
-import controllers.NoAccountsException;
+import exceptions.NoAccountsException;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;

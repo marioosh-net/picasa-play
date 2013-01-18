@@ -1,4 +1,4 @@
-package controllers;
+package interceptors;
 
 import play.Play;
 import play.mvc.Action;

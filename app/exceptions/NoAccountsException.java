@@ -1,4 +1,4 @@
-package controllers;
+package exceptions;
 
 
 public class NoAccountsException extends Exception {
