@@ -1,6 +1,8 @@
 picasa-play
 ===========
 
+[Picasa Web Albums](http://picasaweb.google.com/ "Picasa Web Albums") multi-account frontend powered by [Play Framework](http://playframework.org/ "Play Framework")
+
 Installation
 ---
 1. Unzip ``picasa-play-1.0-SNAPSHOT.zip`` into current directory
