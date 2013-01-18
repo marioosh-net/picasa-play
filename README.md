@@ -26,7 +26,7 @@ Unzip application package
     unzip picasa-play-1.0-SNAPSHOT.zip
     cd picasa-play-1.0-SNAPSHOT
 
-Create ``config.xml`` file like below:
+Create ``config.xml`` file like below. You can ommit this step - will be used default config.
 ```
     <configuration>
         <!-- picasa accounts -->
