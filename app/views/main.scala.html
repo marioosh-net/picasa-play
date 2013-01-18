@@ -47,14 +47,15 @@
                           </div>
                           
 			            <div class="right" style="margin-top: 10px;">
+			            <div class="right">&nbsp;<a href="/?lang=pl">PL</a>|<a href="/?lang=en">EN</a></div>
 			            @if(session.get("user") != null) {
 			             <span class="username">@session.get("user")</span>
 			             <a href="/logout" >Logout</a>
 			            } else {
-			            <span id="form" style="display: none;"><form id="f" method="post" action="/login" style="display: inline;"><input name="pass" type="password" value=""/>&nbsp;<a href="#" onclick="$('#f').submit();">OK</a>|<a href="#" onclick="$('#form').hide(); $('#loginb').show();">Cancel</a><input type="submit" value="Login" style="display: none;"/></form></span>
+			            <span id="form" style="display: none;"><form id="f" method="post" action="/login" style="display: inline;">@Messages("loginlabel") / @Messages("password")<br/><input name="login" type="login" value=""/>
+			            <input name="pass" type="password" value=""/>&nbsp;<a href="#" onclick="$('#f').submit();">OK</a>|<a href="#" onclick="$('#form').hide(); $('#loginb').show();">@Messages("cancel")</a><input type="submit" value="Login" style="display: none;"/></form></span>
 			                    <a id="loginb" href="#" onclick="$('#form').toggle(); $(this).toggle();">@Messages("login")</a>
-			                }
-			                &nbsp;<a href="/?lang=pl">PL</a>|<a href="/?lang=en">EN</a>                   
+			                }                   
 			            </div>
                           
                           <div class="clear"></div>

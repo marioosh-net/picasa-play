@@ -1,0 +1,12 @@
+<configuration>
+    <picasa>
+        <account username="waclaw.bezimienny" password="b7FEvW4mSy9C"/>
+        <account username="waclaw.bezimienny2" password="b7FEvW4mSy9C"/>
+    </picasa>
+    <settings>
+        <local>
+            <account login="admin" password="password1" role="admin"/>
+            <account login="user" password="password2" role="user"/>
+        </local>
+    </settings>
+</configuration>

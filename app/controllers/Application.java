@@ -10,12 +10,19 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 import model.Album;
 import model.Photo;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import others.Role;
 import play.Logger;
 import play.api.templates.Html;
@@ -46,12 +53,11 @@ import com.google.gdata.util.ServiceForbiddenException;
 
 public class Application extends Controller {
 	
+	static final String CONFIG = "config.xml";
 	static final String THUMB_SIZE = "104c,72c,800";
 	static final String IMG_SIZE = "1600";//"d";
-	static final String ADMIN_PASSWORD = play.Play.application().configuration().getString("admin.password");
-	static final String USER_PASSWORD = play.Play.application().configuration().getString("user.password");
-	static final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-
+	
+	static final Map<String, Object[]> local = new HashMap<String, Object[]>();
 	static public List<PicasawebService> myServices = new ArrayList<PicasawebService>();
 	static public List<String> myServicesLogins = new ArrayList<String>();
 	static private PicasawebService myService;
@@ -62,37 +68,61 @@ public class Application extends Controller {
 			Logger.info("Loading services...");
 			myServices.clear();
 			myServicesLogins.clear();
-			Properties p = new Properties();
+			
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			
 			InputStream in;			
-			if(System.getProperty("accounts") != null && new File(System.getProperty("accounts")).canRead()) {
-				in =  new FileInputStream(new File(System.getProperty("accounts")));
+			if(System.getProperty("config") != null && new File(System.getProperty("config")).canRead()) {
+				in =  new FileInputStream(new File(System.getProperty("config")));
 			} else {
-				if(new File(".", "accounts.properties").canRead()) {
-					in = new FileInputStream(new File(".", "accounts.properties"));
+				if(new File(".", CONFIG).canRead()) {
+					in = new FileInputStream(new File(".", CONFIG));
 				} else {
-					in =  Application.class.getResourceAsStream("/resources/accounts.properties");
+					in =  Application.class.getResourceAsStream("/resources/"+CONFIG);
 				}
 			}
-
-			p.load(in);
+			Document doc = builder.parse(in);
 			in.close();
-		
-			Enumeration e = p.propertyNames();
-			List<String[]> l = new ArrayList<String[]>();
-			while(e.hasMoreElements()) {
-				String k = (String) e.nextElement();
-				l.add(new String[]{k+"", p.getProperty(k)});
-				PicasawebService myService = new PicasawebService("testApp");			
-				myService.setUserCredentials(k+"", p.getProperty(k));
+			
+			XPath xpath = XPathFactory.newInstance().newXPath();
+			
+			/**
+			 * picasa accounts
+			 */
+			NodeList l = (NodeList) xpath.evaluate("//picasa/account", doc, XPathConstants.NODESET);
+			for(int i=0; i < l.getLength(); i++) {
+				Node account = l.item(i);
+				String username = account.getAttributes().getNamedItem("username").getNodeValue();
+				String password = account.getAttributes().getNamedItem("password").getNodeValue();
+				
+				PicasawebService myService = new PicasawebService("testApp");
+				myService.setUserCredentials(username, password);
 				myServices.add(myService);
-				myServicesLogins.add(k+"");
+				myServicesLogins.add(username);				
 			}
 			
+			/**
+			 * local accounts
+			 */
+			l = (NodeList) xpath.evaluate("//settings/local/account", doc, XPathConstants.NODESET);
+			for(int i=0; i < l.getLength(); i++) {
+				Node account = l.item(i);
+				String username = account.getAttributes().getNamedItem("login").getNodeValue();
+				String password = account.getAttributes().getNamedItem("password").getNodeValue();
+				Role role = Role.valueOf(account.getAttributes().getNamedItem("role").getNodeValue().toUpperCase());
+				local.put(username, new Object[]{password, role});
+			}
+
+			Logger.info(local+"");
+			in.close();
+		
 			if(myServices.size() == 0) {
 				throw new NoAccountsException();
 			}
 			
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new NoAccountsException(e);
 		}
 	}
@@ -105,16 +135,14 @@ public class Application extends Controller {
 	public static Result login() throws IOException, ServiceException {
 		
 		final Map<String, String[]> values = request().body().asFormUrlEncoded();
-	    final String hash = values.get("pass")[0];
-		if(hash.equals(ADMIN_PASSWORD)) {
-			session("user", "admin");
-			session("role", Role.ADMIN.name());
-			return redirect("/");
-		} else if(hash.equals(USER_PASSWORD)) {
-			session("user", "user");
-			session("role", Role.USER.name());
-			return redirect("/");
-		}
+	    final String pass = values.get("pass")[0];
+	    final String login = values.get("login")[0];
+	    Object[] o = local.get(login);
+	    if(o != null && o[0].equals(pass)) {
+	    	session("user", login);
+	    	session("role", ((Role)o[1]).name());
+	    	return redirect("/");
+	    }
 		flash("message", "login error");
 		return ok(albums.render(getAlbums()));
 	}
@@ -397,7 +425,7 @@ public class Application extends Controller {
 			String a = null;
 			String exif = 
 				"<pre>" +
-				(e.getTime() != null ? "Create Date                     :"+ (e.getTime() != null ? sdf.format(e.getTime()) : "") + "\n" : "") +
+				(e.getTime() != null ? "Create Date                     :"+ (e.getTime() != null ? new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(e.getTime()) : "") + "\n" : "") +
 				(pe != null && pe.getTitle() != null ? "File Name                       :" + pe.getTitle().getPlainText() + "\n" : "") +
 				(a != null ? "File Size                       :" + a + "\n" : "" ) +
 				(e.getCameraModel() != null ? "Camera Model Name               :" + e.getCameraModel() + "\n" : "" ) +
