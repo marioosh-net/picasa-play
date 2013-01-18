@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -13,6 +15,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.activation.MimetypesFileTypeMap;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -20,6 +23,9 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import model.Album;
 import model.Photo;
+import org.apache.commons.net.io.CopyStreamEvent;
+import org.apache.commons.net.io.CopyStreamListener;
+import org.apache.commons.net.io.Util;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -230,7 +236,7 @@ public class Application extends Controller {
 		session("ai", albumId+"");
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo"+"&thumbsize="+THUMB_SIZE+"&imgmax="+IMG_SIZE+
 				(session("user") != null ?
-				"&fields=id,title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords),openSearch:totalResults,openSearch:startIndex,openSearch:itemsPerPage"
+				"&fields=id,title,entry(link[@rel='edit-media'],title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords),openSearch:totalResults,openSearch:startIndex,openSearch:itemsPerPage"
 				:
 				/* tylko entry z media:keywords='public'*/
 				"&fields=title,openSearch:totalResults,openSearch:startIndex,openSearch:itemsPerPage,entry[media:group/media:keywords='public'%20or%20media:group/media:keywords='public,%20picnik'%20or%20media:group/media:keywords='picnik,%20public'](title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords)"
@@ -450,4 +456,48 @@ public class Application extends Controller {
 			return new Html("<pre>No EXIF tags.</pre>");
 		}
 	}
+	
+	public static Result putTest() {
+		return ok(doPut("https://picasaweb.google.com/data/media/api/user/113322135352902796834/albumid/5824478056113208337/photoid/5824491031125602978/17?tok=QUI1UGxRYVVMaXdORHo2RzF2R3dLdlVKX2JSUGRjdUF0dzoxMzU4NTE4MjQwMjIx&authkey=Gv1sRgCJPszozRg6Sn2QE", "C:\\Users\\muniek\\Downloads\\230362a6bcdba6da5297e6249998e118.jpeg")+"");
+	}
+	
+	private static int doPut(String endpoint, String filePath) {
+		URL endpointUrl;
+		HttpURLConnection connection;
+		try {
+			File file = new File(filePath);
+			endpointUrl = new URL(endpoint);
+			connection = (HttpURLConnection) endpointUrl.openConnection();
+			connection.setRequestMethod("PUT");
+			connection.setRequestProperty("Content-Length", file.length()+"");
+			connection.setRequestProperty("Content-Type", new MimetypesFileTypeMap().getContentType(file));
+			connection.setFixedLengthStreamingMode((int) file.length());
+			connection.setDoOutput(true);
+
+			CopyStreamListener listener = new CopyStreamListener() {
+				public void bytesTransferred(long totalBytesTransferred, int bytesTransferred, long streamSize) {
+					System.out.printf("\r%-30S: %d / %d (%d %%)", "Sent", totalBytesTransferred, streamSize, totalBytesTransferred*100/streamSize);
+				}
+				public void bytesTransferred(CopyStreamEvent event) {
+				}
+			};
+			InputStream in = new FileInputStream(file);
+			OutputStream out = connection.getOutputStream();
+			System.out.println("Uploading \""+file.getAbsolutePath()+"\"... ");
+			long c = Util.copyStream(in, out, Util.DEFAULT_COPY_BUFFER_SIZE, file.length(), listener);
+			System.out.printf("\n%-30S: %d\n", "Bytes sent", c);
+			in.close();
+			out.close();
+
+			// return code
+			int code = connection.getResponseCode();
+			System.out.printf("\n%-30S: %d\n", "Response code", code);
+			return code;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return -1;
+	}	
 }

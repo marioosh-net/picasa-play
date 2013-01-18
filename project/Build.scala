@@ -15,6 +15,7 @@ object ApplicationBuild extends Build {
       "javax.mail" % "mail" % "1.4",
       "commons-beanutils" % "commons-beanutils" % "1.8.3",
       "commons-collections" % "commons-collections" % "3.2.1",
+      "commons-net" % "commons-net" % "3.1",
       "net.htmlparser.jericho" % "jericho-html" % "3.1"
     )
 
