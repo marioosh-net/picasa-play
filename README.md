@@ -3,13 +3,30 @@ picasa-play
 
 [Picasa Web Albums](http://picasaweb.google.com/ "Picasa Web Albums") multi-account frontend powered by [Play Framework](http://playframework.org/ "Play Framework")
 
-Installation
+Build
 ---
-1. Unzip ``picasa-play-1.0-SNAPSHOT.zip`` into current directory
+To build You need [Play Framework](http://playframework.org/ "Play Framework") installation (working ``play`` command).
 
-2. ``cd picasa-play-1.0-SNAPSHOT``
+Clone repository
 
-3. Create ``config.xml`` file like below:
+    git clone git://github.com/marioosh-net/picasa-play.git
+
+Change directory to project path and build the standalone application package
+
+    cd picasa-play
+    play dist
+    
+Package is created in `dist/picasa-play-1.0-SNAPSHOT.zip`
+    
+Run
+---    
+Unzip application package
+
+    cd dist
+    unzip picasa-play-1.0-SNAPSHOT.zip
+    cd picasa-play-1.0-SNAPSHOT
+
+Create ``config.xml`` file like below:
 ```
     <configuration>
         <!-- picasa accounts -->
@@ -26,5 +43,12 @@ Installation
         </settings>
     </configuration>
 ```
-4. Start server using ``sh start`` (on Windows ``java -cp "./lib/*;" play.core.server.NettyServer .``)
+Start server
+
+    sh start
+
+on Windows 
+
+    java -cp "./lib/*;" play.core.server.NettyServer .
+    
 
