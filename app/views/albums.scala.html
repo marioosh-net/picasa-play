@@ -1,6 +1,6 @@
 @(albums: List[model.Album])
 @main(Application.settings.get("title").toString()) {
-    @albumslist(albums)
+    @albumslist(albums, null)
 } {    
 	<div id="mini">
         <div id="photos">

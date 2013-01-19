@@ -1,4 +1,4 @@
-@(albums: List[model.Album])
+@(albums: List[model.Album], albumId:String)
     @*
     <ul class="albums"> 
     @for(album <- albums) {
@@ -43,7 +43,7 @@
 	       <div id="albums-only">
 	       @for(i <- albums.indices) {
             <a onclick="$('.oneset').removeClass('album-selected'); $(this).find('div').addClass('album-selected'); $('#exif').html(''); loading('#right'); $('#right').load('/album/@albums(i).getServiceIndex()/@albums(i).getId()'); return false;" href="#" title="@albums(i).getTitle()" class="@if(albums(i).isPub()){pub}" >
-		        <div id="uu@i" class='oneset oneset_@albums(i).getId() @if(albums(i).getId() == session.get("ai")){album-selected}'>
+		        <div id="uu@i" class='oneset oneset_@albums(i).getId() @if(albums(i).getId() == albumId){album-selected}'>
 		            @albums(i).getTitle()@*<span class="counts">(@albums(i).getCount())</span>*@
 		            @if(session.get("user") != null) {
 		            	<span class="pubi" style="color: #5CCCCC; font-weight: bold; @if(!albums(i).isPub()){display: none;}">pub</span>

@@ -210,7 +210,7 @@ public class Application extends Controller {
 	}
 
 	public static Result direct(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
-		return ok(main.render(albumId+"", albumslist.render(getAlbums()), photosHtml(serviceIndex, albumId, start, max)));
+		return ok(main.render(albumId+"", albumslist.render(getAlbums(), albumId), photosHtml(serviceIndex, albumId, start, max)));
 		// return ok("DIRECT");
 	}
 	
