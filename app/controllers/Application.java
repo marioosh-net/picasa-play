@@ -59,6 +59,7 @@ public class Application extends Controller {
 	static final String IMG_SIZE = "1600";//"d";
 	
 	static final Map<String, Object[]> local = new HashMap<String, Object[]>();
+	static public final Map<String, Object> settings = new HashMap<String, Object>();
 	static public List<PicasawebService> myServices = new ArrayList<PicasawebService>();
 	static public List<String> myServicesLogins = new ArrayList<String>();
 	static private PicasawebService myService;
@@ -115,7 +116,12 @@ public class Application extends Controller {
 				local.put(username, new Object[]{password, role});
 			}
 
-			Logger.info(local+"");
+			/**
+			 * settings
+			 */
+			Node n = (Node) xpath.evaluate("//settings/title", doc, XPathConstants.NODE);
+			settings.put("title", n.getTextContent());
+			
 			in.close();
 		
 			if(myServices.size() == 0) {
@@ -149,7 +155,6 @@ public class Application extends Controller {
 	}
 	
 	public static Result albums() throws IOException, ServiceException, NoAccountsException {
-		Logger.debug("LOGGED: " + session("user"));
 		if(request().queryString().get("lang") != null) {
 			response().setCookie("lang", request().queryString().get("lang")[0]);
 		}		

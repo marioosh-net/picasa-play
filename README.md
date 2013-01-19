@@ -40,6 +40,8 @@ Create ``config.xml`` file like below. You can ommit this step - will be used de
                 <account login="admin" password="password1" role="admin"/>
                 <account login="user" password="password2" role="user"/>
             </local>
+            <!-- gallery name -->
+            <title>picasa-play</title>
         </settings>
     </configuration>
 ```

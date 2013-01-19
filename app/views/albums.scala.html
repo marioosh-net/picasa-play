@@ -1,5 +1,5 @@
 @(albums: List[model.Album])
-@main("gallery.marioosh.net") {
+@main(Application.settings.get("title").toString()) {
     @albumslist(albums)
 } {    
 	<div id="mini">

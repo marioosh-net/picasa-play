@@ -8,5 +8,6 @@
             <account login="admin" password="password1" role="admin"/>
             <account login="user" password="password2" role="user"/>
         </local>
+        <title>picasa-play</title>
     </settings>
 </configuration>
