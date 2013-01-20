@@ -137,6 +137,7 @@ public class Application extends Controller {
 	
 	public static Result logout() throws IOException, ServiceException {
 		session().clear();
+		Cache.set("albums", null);
 		return ok(albums.render(getAlbums()));
 	}
 	
@@ -149,6 +150,7 @@ public class Application extends Controller {
 	    if(o != null && o[0].equals(pass)) {
 	    	session("user", login);
 	    	session("role", ((Role)o[1]).name());
+	    	Cache.set("albums", null);
 	    	return redirect("/");
 	    }
 		flash("message", "login error");
