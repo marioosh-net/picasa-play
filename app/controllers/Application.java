@@ -26,6 +26,7 @@ import org.w3c.dom.NodeList;
 import others.Role;
 import play.Logger;
 import play.api.templates.Html;
+import play.cache.Cache;
 import play.mvc.Controller;
 import play.mvc.Result;
 import scala.actors.threadpool.Arrays;
@@ -174,39 +175,44 @@ public class Application extends Controller {
 	 * @throws IOException 
 	 */
 	public static List<Album> getAlbums() throws IOException, ServiceException {
-		Logger.info("Getting albums list...");
-		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album&thumbsize="+THUMB_SIZE+"&fields=entry(title,id,gphoto:id,gphoto:numphotos,media:group/media:thumbnail,media:group/media:keywords)");
-		Query albumQuery = new Query(feedUrl);
-		
-		List<Album> l = new ArrayList<Album>();		
-		int i = 0;
-		for(PicasawebService s: myServices) {
-			Logger.debug(feedUrl.toString());			
-			UserFeed feed = s.query(albumQuery, UserFeed.class);
-			for (GphotoEntry e : feed.getEntries()) {
-				// Utils.describe(e);
-				if(e.getGphotoId() != null) {
-					
-					if(session("user") != null || e.getTitle().getPlainText().endsWith("\u00A0")) {
-						String t = e.getTitle().getPlainText();
-						if(t.length() > 40) {
-							t = t.substring(0, 39)+"...";
+		if(Cache.get("albums") != null) {
+			return (List<Album>) Cache.get("albums"); 
+		} else {
+			Logger.info("Getting albums list...");
+			URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album&thumbsize="+THUMB_SIZE+"&fields=entry(title,id,gphoto:id,gphoto:numphotos,media:group/media:thumbnail,media:group/media:keywords)");
+			Query albumQuery = new Query(feedUrl);
+			
+			List<Album> l = new ArrayList<Album>();		
+			int i = 0;
+			for(PicasawebService s: myServices) {
+				Logger.debug(feedUrl.toString());			
+				UserFeed feed = s.query(albumQuery, UserFeed.class);
+				for (GphotoEntry e : feed.getEntries()) {
+					// Utils.describe(e);
+					if(e.getGphotoId() != null) {
+						
+						if(session("user") != null || e.getTitle().getPlainText().endsWith("\u00A0")) {
+							String t = e.getTitle().getPlainText();
+							if(t.length() > 40) {
+								t = t.substring(0, 39)+"...";
+							}
+							l.add(new Album(e.getGphotoId(), t, e.getExtension(MediaGroup.class).getThumbnails().get(0).getUrl(), e.getExtension(GphotoPhotosUsed.class).getValue(), i, e.getTitle().getPlainText().endsWith("\u00A0"), myServicesLogins.get(i)));
 						}
-						l.add(new Album(e.getGphotoId(), t, e.getExtension(MediaGroup.class).getThumbnails().get(0).getUrl(), e.getExtension(GphotoPhotosUsed.class).getValue(), i, e.getTitle().getPlainText().endsWith("\u00A0"), myServicesLogins.get(i)));
+					} else {
+						// tag... (?kind=album,tag)
+						Logger.debug("album TAG: "+e.getTitle().getPlainText());
 					}
-				} else {
-					// tag... (?kind=album,tag)
-					Logger.debug("album TAG: "+e.getTitle().getPlainText());
 				}
+				i++;
 			}
-			i++;
+			Collections.sort(l, new Comparator<Album>() {
+				@Override
+				public int compare(Album o1, Album o2) {
+					return o2.getTitle().compareTo(o1.getTitle());
+				}});
+			Cache.set("albums", l, 3600);
+			return l;
 		}
-		Collections.sort(l, new Comparator<Album>() {
-			@Override
-			public int compare(Album o1, Album o2) {
-				return o2.getTitle().compareTo(o1.getTitle());
-			}});
-		return l;
 	}
 
 	public static Result direct(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
