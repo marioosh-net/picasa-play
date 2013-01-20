@@ -137,12 +137,13 @@ public class Application extends Controller {
 	
 	public static Result logout() throws IOException, ServiceException {
 		session().clear();
-		Cache.set("albums", null);
+		// Cache.set("albums", null);
 		return ok(albums.render(getAlbums()));
 	}
 	
 	public static Result login() throws IOException, ServiceException {
 		
+		String uuid = getUUID();
 		final Map<String, String[]> values = request().body().asFormUrlEncoded();
 	    final String pass = values.get("pass")[0];
 	    final String login = values.get("login")[0];
@@ -150,7 +151,7 @@ public class Application extends Controller {
 	    if(o != null && o[0].equals(pass)) {
 	    	session("user", login);
 	    	session("role", ((Role)o[1]).name());
-	    	Cache.set("albums", null);
+	    	Cache.set(uuid+"albums", null);
 	    	return redirect("/");
 	    }
 		flash("message", "login error");
@@ -170,6 +171,15 @@ public class Application extends Controller {
 		} 
 	}
 	
+	private static String getUUID() {
+		String uuid = session("uuid");
+		if(uuid==null) {
+			uuid=java.util.UUID.randomUUID().toString();
+			session("uuid", uuid);
+		}
+		return session("uuid");
+	}
+	
 	/**
 	 * album list
 	 * @return
@@ -177,9 +187,14 @@ public class Application extends Controller {
 	 * @throws IOException 
 	 */
 	public static List<Album> getAlbums() throws IOException, ServiceException {
-		if(Cache.get("albums") != null) {
-			return (List<Album>) Cache.get("albums"); 
+				
+		String uuid = getUUID();
+		List<Album> cached = (List<Album>) Cache.get(uuid+"albums");
+		if(cached != null) {
+			Logger.debug("CACHED");
+			return cached; 
 		} else {
+			Logger.debug("NOT CACHED");
 			Logger.info("Getting albums list...");
 			URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album&thumbsize="+THUMB_SIZE+"&fields=entry(title,id,gphoto:id,gphoto:numphotos,media:group/media:thumbnail,media:group/media:keywords)");
 			Query albumQuery = new Query(feedUrl);
@@ -212,7 +227,7 @@ public class Application extends Controller {
 				public int compare(Album o1, Album o2) {
 					return o2.getTitle().compareTo(o1.getTitle());
 				}});
-			Cache.set("albums", l, 3600);
+			Cache.set(uuid+"albums", l, 3600);
 			return l;
 		}
 	}
