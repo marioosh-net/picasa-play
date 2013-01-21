@@ -35,6 +35,7 @@ import views.html.albums;
 import views.html.albumslist;
 import views.html.main;
 import views.html.photos;
+import views.html.exif;
 import com.google.gdata.client.Query;
 import com.google.gdata.client.photos.PicasawebService;
 import com.google.gdata.data.PlainTextConstruct;
@@ -49,6 +50,7 @@ import com.google.gdata.data.photos.GphotoPhotosUsed;
 import com.google.gdata.data.photos.PhotoEntry;
 import com.google.gdata.data.photos.TagEntry;
 import com.google.gdata.data.photos.UserFeed;
+import com.google.gdata.data.photos.impl.ExifTag;
 import com.google.gdata.util.ParseException;
 import com.google.gdata.util.ServiceException;
 import com.google.gdata.util.ServiceForbiddenException;
@@ -61,6 +63,7 @@ public class Application extends Controller {
 	static final String IMG_SIZE = "1600";//"d";
 	static final String API_URL = "https://picasaweb.google.com/data/entry/api/user/default";
 	static final String API_FEED_URL = "https://picasaweb.google.com/data/feed/api/user/default";
+	static public final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 	
 	static final Map<String, Object[]> local = new HashMap<String, Object[]>();
 	static public final Map<String, Object> settings = new HashMap<String, Object>();
@@ -68,6 +71,12 @@ public class Application extends Controller {
 	static public List<String> myServicesLogins = new ArrayList<String>();
 	static private PicasawebService myService;
 
+	/**
+	 * load configuration from config.xml
+	 * init picasa services
+	 * 
+	 * @throws NoAccountsException
+	 */
 	public static void loadServices() throws NoAccountsException {
 		
 		try {
@@ -138,12 +147,24 @@ public class Application extends Controller {
 		}
 	}
 	
+	/**
+	 * logout
+	 * @return
+	 * @throws IOException
+	 * @throws ServiceException
+	 */
 	public static Result logout() throws IOException, ServiceException {
 		session().clear();
 		// Cache.set("albums", null);
 		return ok(albums.render(getAlbums()));
 	}
 	
+	/**
+	 * login
+	 * @return
+	 * @throws IOException
+	 * @throws ServiceException
+	 */
 	public static Result login() throws IOException, ServiceException {
 		
 		String uuid = getUUID();
@@ -161,6 +182,13 @@ public class Application extends Controller {
 		return ok(albums.render(getAlbums()));
 	}
 	
+	/**
+	 * main page (root) with album covers
+	 * @return
+	 * @throws IOException
+	 * @throws ServiceException
+	 * @throws NoAccountsException
+	 */
 	public static Result albums() throws IOException, ServiceException, NoAccountsException {
 		if(request().queryString().get("lang") != null) {
 			response().setCookie("lang", request().queryString().get("lang")[0]);
@@ -172,15 +200,6 @@ public class Application extends Controller {
 			loadServices();
 			return redirect("/");
 		} 
-	}
-	
-	private static String getUUID() {
-		String uuid = session("uuid");
-		if(uuid==null) {
-			uuid=java.util.UUID.randomUUID().toString();
-			session("uuid", uuid);
-		}
-		return session("uuid");
 	}
 	
 	/**
@@ -235,12 +254,22 @@ public class Application extends Controller {
 		}
 	}
 
+	/**
+	 * full page with opened album (by url)
+	 * @param serviceIndex
+	 * @param albumId
+	 * @param start
+	 * @param max
+	 * @return
+	 * @throws IOException
+	 * @throws ServiceException
+	 */
 	public static Result direct(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
 		return ok(main.render(albumId+"", albumslist.render(getAlbums(), albumId), photosHtml(serviceIndex, albumId, start, max)));
 	}
 	
 	/**
-	 * photos in album list
+	 * photos in album as Result
 	 * @param serviceIndex
 	 * @param albumId
 	 * @param start
@@ -253,6 +282,16 @@ public class Application extends Controller {
 		return ok(photosHtml(serviceIndex, albumId, start, max));
 	}
 	
+	/**
+	 * photos in album as HTML
+	 * @param serviceIndex
+	 * @param albumId
+	 * @param start
+	 * @param max
+	 * @return
+	 * @throws IOException
+	 * @throws ServiceException
+	 */
 	private static Html photosHtml(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
 		Logger.info("Getting photos list...");
 		myService = myServices.get(serviceIndex);
@@ -388,42 +427,29 @@ public class Application extends Controller {
 		ae.update();
 		return ok("0");
 	}
-	
+
+	/**
+	 * get exif tags
+	 * @param serviceIndex
+	 * @param albumId
+	 * @param photoId
+	 * @return
+	 * @throws IOException
+	 * @throws ServiceException
+	 */
 	public static Result exif(int serviceIndex, String albumId, String photoId) throws IOException, ServiceException {
 		URL feedUrl = new URL(API_URL+"/albumid/"+albumId+"/photoid/"+photoId+"?fields=exif:tags,title");
 		PhotoEntry pe = myServices.get(serviceIndex).getEntry(feedUrl, PhotoEntry.class);
-		return ok(exifTagsHtml(pe));
+		return ok(exif.render(pe));
 	}
 
-	private static Html exifTagsHtml(PhotoEntry pe) throws ParseException {
-		if(pe.hasExifTags() && pe.getExifTags() != null) {
-			ExifTags e = pe.getExifTags();
-
-			String a = null;
-			String exif = 
-				"<pre>" +
-				(e.getTime() != null ? "Create Date                     :"+ (e.getTime() != null ? new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(e.getTime()) : "") + "\n" : "") +
-				(pe != null && pe.getTitle() != null ? "File Name                       :" + pe.getTitle().getPlainText() + "\n" : "") +
-				(a != null ? "File Size                       :" + a + "\n" : "" ) +
-				(e.getCameraModel() != null ? "Camera Model Name               :" + e.getCameraModel() + "\n" : "" ) +
-				(e.getApetureFNumber() != null ? "F Number                        :" + e.getApetureFNumber() + "\n" : "" ) +
-				(e.getFocalLength() != null ? "Focal Length                    :" + e.getFocalLength() + "\n" : "" ) +
-				(a != null ? "Focal Length In 35mm Format     :" + a + "\n" : "" ) +
-				(e.getExposureTime() != null ? "Exposure Time                   :" + e.getExposureTime() + "\n" : "" ) +
-				(e.getIsoEquivalent() != null ? "ISO                             :" + e.getIsoEquivalent() + "\n" : "" ) +
-				(a != null ? "Exposure Program                :" + a + "\n" : "" ) +
-				(a != null ? "Exposure Mode                   :" + a + "\n" : "" ) +
-				(a != null ? "Metering Mode                   :" + a + "\n" : "" ) +
-				(a != null ? "White Balance                   :" + a + "\n" : "" ) +
-				(e.getFlashUsed() != null ? "Flash                           :" + e.getFlashUsed() + "\n" : "" ) +
-				(a != null ? "Light Source                    :" + a + "\n" : "" ) +
-				(a != null ? "Exposure Compensation           :" + a + "\n" : "" ) +
-				(a != null ? "Image Width                     :" + a + "\n" : "" ) +
-				(a != null ? "Image Height                    :" + a : "") +
-				"</pre>";
-			return new Html(exif);
-		} else {
-			return new Html("<pre>No EXIF tags.</pre>");
+	private static String getUUID() {
+		String uuid = session("uuid");
+		if(uuid==null) {
+			uuid=java.util.UUID.randomUUID().toString();
+			session("uuid", uuid);
 		}
+		return session("uuid");
 	}
+	
 }

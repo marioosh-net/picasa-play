@@ -141,7 +141,7 @@ form {
     height: 300px;
 }
 #exif {
-    margin: 3px;
+    /*margin: 3px;*/
     margin-top: 10px;
     font-family: courier;
 }
@@ -156,6 +156,21 @@ form {
 }
 #exif .exif-value {
     float: left;
+}
+table.exif {
+	border: none;
+	margin: 0px;
+	padding: 0px;
+}
+.exif td {
+	
+}
+.exif td.exifname {
+	color: #888;
+	padding-right: 10px;
+}
+.exif td.exifvalue {
+	color: rgb(165, 159, 159);
 }
 /* footer END */
 
