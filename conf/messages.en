@@ -6,3 +6,5 @@ albums=Albums
 loginlabel=Login
 password=Password
 cancel=Cancel
+openinneww=Open in new window
+loginerror=Login error

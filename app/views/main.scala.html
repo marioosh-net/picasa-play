@@ -58,7 +58,7 @@
 			             <a href="/logout" >Logout</a>
 			            } else {
 			            <span id="form" style="display: none;"><form id="f" method="post" action="/login" style="display: inline;">@Messages("loginlabel") / @Messages("password")<br/><input name="login" type="login" value=""/>
-			            <input name="pass" type="password" value=""/>&nbsp;<a href="#" onclick="$('#f').submit();">OK</a>|<a href="#" onclick="$('#form').hide(); $('#loginb').show();">@Messages("cancel")</a><input type="submit" value="Login" style="display: none;"/></form></span>
+			            <input name="pass" type="password" value=""/><input type="submit" value="" class="hiddensubmit"/>&nbsp;<a href="#" onclick="$('#f').submit();">OK</a>|<a href="#" onclick="$('#form').hide(); $('#loginb').show();">@Messages("cancel")</a><input type="submit" value="Login" style="display: none;"/></form></span>
 			                    <a id="loginb" href="#" onclick="$('#form').toggle(); $(this).toggle();">@Messages("login")</a>
 			                }                   
 			            </div>

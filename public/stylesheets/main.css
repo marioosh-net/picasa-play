@@ -221,7 +221,7 @@ form {
     font-size: 12px;
     color: red;
 }
-.sform .hiddensubmit {
+.hiddensubmit {
     position: absolute; 
     left: -9999px; 
     width: 1px; 
