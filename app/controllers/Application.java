@@ -281,10 +281,10 @@ public class Application extends Controller {
 			MediaGroup g = e.getExtension(MediaGroup.class);
 			ExifTags exif = e.getExtension(ExifTags.class);
 			
+			String editUrl = null;
 			if(session("user") != null) {
 				Link link = e.getLinks().get(0);
-				Logger.info(link+"");
-				Logger.info(link.getHref()+"");
+				editUrl = link.getHref()+"";
 			}
 			//Utils.describe(exif);
 			
@@ -306,7 +306,7 @@ public class Application extends Controller {
 								g.getThumbnails().get(2).getUrl()}), 
 						g.getContents().get(0).getUrl(), 
 						e.getExtension(GphotoAlbumId.class).getValue(), 
-						g.getKeywords().getKeywords().toArray(new String[]{}), pub, exif));
+						g.getKeywords().getKeywords().toArray(new String[]{}), pub, exif, editUrl));
 				}
 			}
 		}
@@ -466,7 +466,9 @@ public class Application extends Controller {
 	}
 	
 	public static Result putTest() {
-		return ok(doPut("https://picasaweb.google.com/data/media/api/user/113322135352902796834/albumid/5824478056113208337/photoid/5824491031125602978/17?tok=QUI1UGxRYVVMaXdORHo2RzF2R3dLdlVKX2JSUGRjdUF0dzoxMzU4NTE4MjQwMjIx&authkey=Gv1sRgCJPszozRg6Sn2QE", "C:\\Users\\muniek\\Downloads\\230362a6bcdba6da5297e6249998e118.jpeg")+"");
+		final Map<String, String[]> values = request().body().asFormUrlEncoded();
+		Logger.debug("PUT "+values.get("url")[0]);
+		return ok(doPut(values.get("url")[0], "C:\\Users\\muniek\\Downloads\\230362a6bcdba6da5297e6249998e118.jpeg")+"");
 	}
 	
 	private static int doPut(String endpoint, String filePath) {

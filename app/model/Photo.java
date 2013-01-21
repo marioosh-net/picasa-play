@@ -13,8 +13,9 @@ public class Photo {
 	private String[] keywords;
 	private boolean pub;
 	private ExifTags exif;
+	private String editUrl;
 	
-	public Photo(String title, String id, List<String> thumbs, String content, String albumId, String[] keywords, boolean pub, ExifTags exif) {
+	public Photo(String title, String id, List<String> thumbs, String content, String albumId, String[] keywords, boolean pub, ExifTags exif, String editUrl) {
 		super();
 		this.title = title;
 		this.id = id;
@@ -24,6 +25,7 @@ public class Photo {
 		this.keywords = keywords;
 		this.pub = pub;
 		this.exif = exif;
+		this.editUrl = editUrl;
 	}
 
 	public String getTitle() {
@@ -96,5 +98,15 @@ public class Photo {
 	
 	public void setExif(ExifTags exif) {
 		this.exif = exif;
+	}
+	
+	
+	public String getEditUrl() {
+		return editUrl;
+	}
+	
+	
+	public void setEditUrl(String editUrl) {
+		this.editUrl = editUrl;
 	}
 }
