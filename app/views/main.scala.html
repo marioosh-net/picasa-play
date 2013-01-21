@@ -30,8 +30,10 @@
         
     </head>
     <body id="body">
+    <div id="msg"></div>
     <div id="wrapper">  
         <div id="main">
+            @*PLAY_SESSION:@request().cookies().get("PLAY_SESSION").value()*@
             <div id="content">      
                 <div class="fixedwidth">
 	                <div class="left leftfixed">
@@ -39,7 +41,10 @@
 	                </div>
 	                <div class="right rightfixed">
 	                   @if(flash.get("message") != null) {
-                        <div class="message">@flash.get("message")</div>
+                        @*<div class="message">@flash.get("message")</div>*@
+                        <script>
+                        msg('@flash.get("message")');
+                        </script>
                         }	                
                         <div id="header">
                           <div class="left" style="padding-top: 10px;">

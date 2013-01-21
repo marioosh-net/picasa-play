@@ -80,3 +80,13 @@ function filter(s) {
 function loadingIcon(a){
 	$(a).html("<img src='/assets/images/ajax-loader7.gif'/>")
 }
+
+function msg(m) {
+	$(function(){
+	    $('#msg')
+    	.html(m)
+    	.show()
+    	.delay(2000)
+    	.slideUp(300);		
+	});
+}

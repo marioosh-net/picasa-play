@@ -876,3 +876,13 @@ div.message {
 a.on {
     color: #5CCCCC !important;	
 }
+#msg{
+	display: none;
+    /*position: absolute;*/
+    top: 0px;
+    background-color: rgb(219, 67, 67);
+    color: #fff;
+    font-weight: bold;
+    padding: 5px;
+    text-align: center;
+}
