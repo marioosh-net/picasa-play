@@ -9,8 +9,8 @@
         <a href="/">@Messages("albums")</a>&nbsp;&raquo;&nbsp; <a href="/direct/@session.get("si")/@session.get("ai")">@session.get("aname")@*@feed.getTitle().getPlainText()*@</a>
         @if(session.get("user") != null) {
         <span class="album_options">
-        <a id="pubal" href="#" style="@if(session.get("pub") != null){display: none;}" onclick="$.ajax({url: '/pub/@session.get("si")/@session.get("ai")'}).done(function(r) {if(r == '0') {$('#prival').hide();$('#pubal').show(); $('div.album-selected').parent().removeClass('pub'); $('div.album-selected').find('span.pubi').hide();} else {$('#prival').show();$('#pubal').hide(); $('div.album-selected').parent().addClass('pub'); $('div.album-selected').find('span.pubi').show();}}); return false;">public</a>
-        <a id="prival" href="#" style="@if(session.get("pub") == null){display: none;}" onclick="$.ajax({url: '/priv/@session.get("si")/@session.get("ai")'}).done(function(r) {if(r == '0') {$('#prival').hide();$('#pubal').show(); $('div.album-selected').parent().removeClass('pub'); $('div.album-selected').find('span.pubi').hide();} else {$('#prival').show();$('#pubal').hide(); $('div.album-selected').parent().addClass('pub'); $('div.album-selected').find('span.pubi').show();}}); return false;">private</a>
+	        <a class="pub" href="#" style="@if(session.get("pub") != null){display: none;}" onclick="vis($(this),'/pub/@session.get("si")/@session.get("ai")', true)">public</a>
+	        <a class="priv" href="#" style="@if(session.get("pub") == null){display: none;}" onclick="vis($(this),'/priv/@session.get("si")/@session.get("ai")', true)">private</a>
         </span>
         }
     </div>
@@ -76,9 +76,8 @@
             
             @if(session.get("user") != null) {
 			<div class="thumb_options">
-				<a href="#" id="pub@i" style="@if(photos(i).isPub()){display: none;}" onclick="$.ajax({url: '/pub/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()'}).done(function(r) {if(r == '0') {$('#priv@i').hide();$('#pub@i').show();} else {$('#priv@i').show();$('#pub@i').hide();}}); return false;" >public</a>
-				<a href="#" id="priv@i" style="@if(!photos(i).isPub()){display: none;} color: #5CCCCC; font-weight: bold;" onclick="$.ajax({url: '/priv/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()'}).done(function(r) {if(r == '0') {$('#priv@i').hide();$('#pub@i').show();} else {$('#priv@i').show();$('#pub@i').hide();}}); return false;" >private</a>
-
+				<a href="#" class="pub" style="@if(photos(i).isPub()){display: none;}" onclick="vis($(this),'/pub/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()')" >public</a>
+				<a href="#" class="priv" style="@if(!photos(i).isPub()){display: none;}" onclick="vis($(this),'/priv/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()')" >private</a>
 			</div>
 			}   
         </div>

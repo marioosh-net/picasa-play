@@ -682,6 +682,7 @@ ul.albums_list {
     padding-right: 3px;
     position: relative;
     top: -15px;
+    height: 8px;
 }
 .album_options {
     margin-top: 5px;
@@ -692,6 +693,11 @@ ul.albums_list {
 .public_thumb {
     color: #fff; 
     background-color: green;
+}
+
+.album_options .priv, .thumb_options .priv, .pubi {
+	color: #5CCCCC !important;  
+	font-weight: bold !important;
 }
 
 .covers {

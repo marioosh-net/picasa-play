@@ -78,7 +78,7 @@ function filter(s) {
 }
 
 function loadingIcon(a){
-	$(a).html("<img src='/assets/images/ajax-loader7.gif'/>")
+	$(a).html("<img src='/assets/images/ajax-loader7.gif'/>");
 }
 
 function msg(m) {
@@ -89,4 +89,29 @@ function msg(m) {
     	.delay(2000)
     	.slideUp(300);		
 	});
+}
+
+function vis(_this, url, album) {
+	if($(_this).parent().find('.loading').length == 0) {
+		$(_this).parent().append("<img class='loading' src='/assets/images/ajax-loader7.gif'/>");
+	}
+	$(_this).parent().find('.loading').show();
+	$(_this).hide();
+	$.ajax({url: url}).done(function(r) {
+		$(_this).parent().find('.loading').hide();
+		if(r == '0') {
+			$(_this).parent().find('.priv').hide();
+			$(_this).parent().find('.pub').show();
+			if(album) {
+				$('div.album-selected').parent().removeClass('pub'); $('div.album-selected').find('span.pubi').hide();
+			}
+		} else {
+			$(_this).parent().find('.priv').show();
+			$(_this).parent().find('.pub').hide();
+			if(album) {
+				$('div.album-selected').parent().addClass('pub'); $('div.album-selected').find('span.pubi').show();
+			}
+		}
+	}); 
+	return false;
 }
