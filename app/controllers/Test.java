@@ -76,7 +76,7 @@ public class Test extends Controller {
 					break;
 				}
 			}
-			Integer i = 0, j = 0, k = 0;
+			Integer i = 0, j = 0;
 			
 			if (content != null) {
 
@@ -126,10 +126,14 @@ public class Test extends Controller {
 						myPhoto.setMediaSource(myMedia);
 						PhotoEntry returnedPhoto = Application.myServices.get(index).insert(albumPostUrl, myPhoto);
 						in.close();
-						i++;						
+						i++;
+						
+						if(!create && i >= count) {
+							break;
+						}
 					}
 					
-					if(++k == count) {
+					if((create && j >= count) || (!create && i >= count)) {
 						break;
 					}
 					
