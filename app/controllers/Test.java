@@ -157,8 +157,9 @@ public class Test extends Controller {
 		}
 		
 	}
-	
-	public static Result parse() {
+
+	@Logged(Role.ADMIN)
+	public static Result test() {
 		if(request().method().equalsIgnoreCase("GET")) {
 			return ok(test.render());
 		} else {
