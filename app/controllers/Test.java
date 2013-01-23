@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import others.Role;
+import views.html.test;
 import com.google.gdata.client.photos.PicasawebService;
 import com.google.gdata.data.PlainTextConstruct;
 import com.google.gdata.data.media.MediaFileSource;
@@ -27,6 +28,7 @@ import net.htmlparser.jericho.Element;
 import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.TextExtractor;
+import play.Logger;
 import play.cache.Cache;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -154,5 +156,15 @@ public class Test extends Controller {
 			return ok(e.getMessage() != null ? e.getMessage() : e+"");
 		}
 		
+	}
+	
+	public static Result parse() {
+		if(request().method().equalsIgnoreCase("GET")) {
+			return ok(test.render());
+		} else {
+			String count = request().body().asFormUrlEncoded().get("count")[0].trim();
+			String[] b = request().body().asFormUrlEncoded().get("create");
+			return redirect("/test/"+(b != null ? "1": "0")+(count.equals("") ? "" : "/"+count));
+		}
 	}
 }

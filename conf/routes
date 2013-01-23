@@ -13,6 +13,8 @@ GET     /priv/:serviceIndex/:albumId/:photoId       controllers.Application.priv
 GET     /pub/:serviceIndex/:albumId                 controllers.Application.pubAlbum(serviceIndex:Int, albumId)
 GET     /priv/:serviceIndex/:albumId                controllers.Application.privAlbum(serviceIndex:Int, albumId)
 GET     /exif/:serviceIndex/:albumId/:photoId       controllers.Application.exif(serviceIndex:Int, albumId, photoId)
+GET     /test                                       controllers.Test.parse
+POST    /test                                       controllers.Test.parse
 GET     /test/:create                               controllers.Test.loadTestData(count:Int ?=1, create:Boolean)
 GET     /test/:create/:count                        controllers.Test.loadTestData(count:Int, create:Boolean)
 GET     /deleteall                                  controllers.Test.deleteAllAlbums()

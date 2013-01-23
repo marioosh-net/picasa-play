@@ -329,7 +329,7 @@ public class Application extends Controller {
 		map.put("per",feed.getItemsPerPage());
 		
 		List<Integer> pages = new ArrayList<Integer>();
-		for(int i = 1; i <= feed.getTotalResults()/feed.getItemsPerPage() + 1; i++) {
+		for(int i = 1; i <= feed.getTotalResults()/feed.getItemsPerPage() + (feed.getTotalResults()%feed.getItemsPerPage() == 0 ? 0 : 1); i++) {
 			pages.add(i);
 		}
 		
