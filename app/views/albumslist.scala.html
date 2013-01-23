@@ -26,14 +26,6 @@
 	                <div class="right">
 	                    <img src="@routes.Assets.at("images/ajax-loader6.gif")" id="search-progress" style="display: none;">
 	                </div><div class="clear"></div>
-	                <script>
-	                function search() {	$('#search-progress').show(); filter($('#search').val()); $('#search-progress').hide(); $('#search').focus();$('#search').select(); }
-	                $("#bsearch").click(function(event) { search(); });
-                    $("#ball").click(function(event) { $('#search').val(''); search(); });	                
-	                $("#search").change(function(event) { search(); });
-	                $("#bpub").click(function(event) { $(this).toggleClass('on'); search(); });
-	                $("#search").keypress(function(event) { if (event.which == 13) { search(); } });	                
-	                </script>
 	            </div>
 	            <div id="searches" style="display:none;">
 	            </div>
@@ -42,7 +34,8 @@
 	    
 	       <div id="albums-only">
 	       @for(i <- albums.indices) {
-            <a onclick="$('.oneset').removeClass('album-selected'); $(this).find('div').addClass('album-selected'); $('#exif').html(''); loading('#right'); $('#right').load('/album/@albums(i).getServiceIndex()/@albums(i).getId()'); return false;" href="#" title="@albums(i).getTitle()" class="@if(albums(i).isPub()){pub}" >
+	       
+            <a onclick="openalbum('/album/@albums(i).getServiceIndex()/@albums(i).getId()', '#uu@i')" href="#" title="@albums(i).getTitle()" class="@if(albums(i).isPub()){pub}" >
 		        <div id="uu@i" class='oneset oneset_@albums(i).getId() @if(albums(i).getId() == albumId){album-selected}'>
 		            @albums(i).getTitle()@*<span class="counts">(@albums(i).getCount())</span>*@
 		            @if(session.get("user") != null) {

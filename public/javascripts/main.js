@@ -1,5 +1,27 @@
+function search() {	
+	$('#search-progress').show(); 
+	filter($('#search').val()); 
+	$('#search-progress').hide(); 
+	$('#search').focus();
+	$('#search').select(); 
+}
+$(function(){
+	/*$('#albums-only').jScrollPane();*/
+	scrollRefresh();
+    
+	$("#bsearch").click(function(event) { search(); });
+    $("#ball").click(function(event) { $('#search').val(''); search(); });	                
+    $("#search").change(function(event) { search(); });
+    $("#bpub").click(function(event) { $(this).toggleClass('on'); search(); });
+    $("#search").keypress(function(event) { if (event.which == 13) { search(); } });
+});
+
 function loading(a){
 	$(a).html('<div style="padding: 5px;"><img src="/assets/images/ajax-loader7.gif"/>&#160;loading...</div>');
+}
+
+function openalbum(url, selector) {
+	$('.oneset').removeClass('album-selected'); $(selector).addClass('album-selected'); $('#exif').html(''); loading('#right'); $('#right').load(url); return false;	
 }
 
 var xhr;
