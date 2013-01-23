@@ -695,7 +695,7 @@ ul.albums_list {
     background-color: green;
 }
 
-.album_options .priv, .thumb_options .priv, .pubi {
+.album_options .priv, .thumb_options .priv, .thumb_options2 .priv, .pubi {
 	color: #5CCCCC !important;  
 	font-weight: bold !important;
 }
