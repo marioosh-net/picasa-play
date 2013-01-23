@@ -1,6 +1,7 @@
 @(entry:com.google.gdata.data.photos.PhotoEntry)
 @if(entry.hasExifTags() && entry.getExifTags() != null) {
     @defining(entry.getExifTags().getExifTags()) { tags =>
+        @*<div class="exif-header">EXIF Data</div>*@
         <table class="exif" cellspacing="0" cellpadding="0" border="0">
         @if(entry.getExifTags().getTime() != null) {
         <tr><td class="exifname">@Messages("exif.time")</td><td class="exifvalue">@Application.sdf.format(entry.getExifTags().getTime())</td></tr>

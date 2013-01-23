@@ -443,7 +443,7 @@ public class Application extends Controller {
 		return ok(exif.render(pe));
 	}
 
-	private static String getUUID() {
+	public static String getUUID() {
 		String uuid = session("uuid");
 		if(uuid==null) {
 			uuid=java.util.UUID.randomUUID().toString();

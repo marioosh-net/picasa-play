@@ -143,18 +143,20 @@ form {
 #exif {
     /*margin: 3px;*/
     margin-top: 10px;
-    font-family: courier;
 }
 #exif .exif-header {
     color: #fff;
     font-size: 12px;
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;  
 }
-#exif .exif-name {
+.exif {
+	font-family: courier;
+}
+.exif .exif-name {
     float: left;
     width: 150px;
 }
-#exif .exif-value {
+.exif .exif-value {
     float: left;
 }
 table.exif {

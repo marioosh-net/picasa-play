@@ -27,6 +27,7 @@ import net.htmlparser.jericho.Element;
 import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.TextExtractor;
+import play.cache.Cache;
 import play.mvc.Controller;
 import play.mvc.Result;
 
@@ -75,13 +76,12 @@ public class Test extends Controller {
 					break;
 				}
 			}
-			Integer i = 0;
+			Integer i = 0, j = 0, k = 0;
 			
 			if (content != null) {
 
 				List<Element> trs = content.getAllElements(HTMLElementName.TR);
 				System.out.println(trs.size() + " nodes found.");
-				i = 0;
 				Collections.shuffle(trs); // pomieszaj :)
 				for (Element tr : trs) {
 					List<Element> list = tr.getAllElements(HTMLElementName.IMG);
@@ -100,6 +100,7 @@ public class Test extends Controller {
 						AlbumEntry insertedEntry = Application.myServices.get(index).insert(postUrl, myAlbum);
 						// Utils.describe(insertedEntry);
 						albumId = insertedEntry.getId().substring(insertedEntry.getId().lastIndexOf('/')+1);
+						j++;
 					} else {
 						List<Album> l = Application.getAlbums();
 						Album a = l.get(random.nextInt(l.size()));
@@ -125,21 +126,24 @@ public class Test extends Controller {
 						myPhoto.setMediaSource(myMedia);
 						PhotoEntry returnedPhoto = Application.myServices.get(index).insert(albumPostUrl, myPhoto);
 						in.close();
+						i++;						
 					}
 					
-					i++;
-					if(i == count) {
+					if(++k == count) {
 						break;
 					}
 					
 				}
-				System.out.println(i + " products added.");
+				System.out.println(j + " albums, "+i+" photos added.");
+				String uuid = Application.getUUID();
+				Cache.set(uuid+"albums", null);
 			}
 			
 			is.close();
 			
 			// return ok(i + " products added.");
-			return redirect("/?message="+ i + " albums added.");
+			flash("message", j + " albums, "+i+" photos added.");
+			return redirect("/");
 
 		} catch (Exception e) {
 			e.printStackTrace();
