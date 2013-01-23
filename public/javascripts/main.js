@@ -21,7 +21,7 @@ function loading(a){
 }
 
 function openalbum(url, selector) {
-	$('.oneset').removeClass('album-selected'); $(selector).addClass('album-selected'); $('#exif').html(''); loading('#right'); $('#right').load(url); return false;	
+	$('.oneset').removeClass('album-selected'); $(selector).addClass('album-selected'); $('#exif').html(''); loading('#right'); $('#right').load(url, function(){$('#exif-container').css('height', '300px');}); return false;	
 }
 
 var xhr;
