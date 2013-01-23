@@ -3,6 +3,10 @@ picasa-play
 
 [Picasa Web Albums](http://picasaweb.google.com/ "Picasa Web Albums") multi-account frontend powered by [Play Framework](http://playframework.org/ "Play Framework")
 
+Demo
+---
+Working demo on Heroku http://picasa-play.herokuapp.com/
+
 Build
 ---
 To build You need [Play Framework](http://playframework.org/ "Play Framework") installation (working ``play`` command).
