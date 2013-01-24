@@ -9,7 +9,7 @@
                 
                 @for(i <- albums.indices) {
 		            <div class="thumb_box @if(albums(i).isPub()){pub}" title="@albums(i).getTitle()">
-		                <a href="#" onclick="openalbum('/album/@albums(i).getServiceIndex()/@albums(i).getId()', '#uu@i')" class="thumb_link">
+		                <a href="#" url='/album/@albums(i).getServiceIndex()/@albums(i).getId()' selector='#uu@i' class="openalbum thumb_link">
 		                    <div id="t@i" class="thumb" style="background-image: url('@routes.Assets.at("images/ajax-loader7.gif")'); background-position: 50% 50%; "></div>
 		                    <div id="u@i" class="thumb thumb_box_cover" style="display: none; float: none; background-image: url('@albums(i).getThumbnailUrl()');"></div>
 		                    <img style="display: none;" src="@albums(i).getThumbnailUrl()" onload="$('#t@i').hide(); $('#u@i').show();">

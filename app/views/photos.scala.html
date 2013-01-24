@@ -6,11 +6,11 @@
 *@
     <div id="photos-header">
     <div class="left album-title">
-        <a href="/">@Messages("albums")</a>&nbsp;&raquo;&nbsp; <a href="/direct/@session.get("si")/@session.get("ai")">@session.get("aname")@*@feed.getTitle().getPlainText()*@</a>
+        <a href="/">@Messages("albums")</a>&nbsp;&raquo;&nbsp; <a href="/direct/@session.get("si")/@session.get("ai")#direct">@session.get("aname")@*@feed.getTitle().getPlainText()*@</a>
         @if(session.get("user") != null) {
         <span class="album_options">
-	        <a class="pub" href="#" style="@if(session.get("pub") != null){display: none;}" onclick="vis($(this),'/pub/@session.get("si")/@session.get("ai")', true)">public</a>
-	        <a class="priv" href="#" style="@if(session.get("pub") == null){display: none;}" onclick="vis($(this),'/priv/@session.get("si")/@session.get("ai")', true)">private</a>
+	        <a class="pub vis" href="#" style="@if(session.get("pub") != null){display: none;}" url='/pub/@session.get("si")/@session.get("ai")' al='true'>public</a>
+	        <a class="priv vis" href="#" style="@if(session.get("pub") == null){display: none;}" url='/priv/@session.get("si")/@session.get("ai")' al='true'>private</a>
         </span>
         }
     </div>
@@ -36,7 +36,7 @@
 				@if((p-1) * map.get("per") + 1 == map.get("start")) {
 					<div><span style="color: #fff;">[@p]</span></div>
 				} else {
-					<div><a href="#" onclick="loadingIcon(this); $('#right').load('/album/@session.get("si")/@session.get("ai")?start=@((p-1) * map.get("per") + 1)'); return false;">[@p]</a></div>
+					<div><a class="pages" href="#" url='/album/@session.get("si")/@session.get("ai")?start=@((p-1) * map.get("per") + 1)' >[@p]</a></div>
 				}
 			}	
 			
@@ -66,11 +66,11 @@
         <div id="th@i" class="thumb_box" style="@if(session.get("user") != null){height:auto;}" >
             <a class="lightview" data-lightview-group="a@photos(i).getAlbumId()" data-lightview-title='<a href="@photos(i).getContent()" target="_blank">@photos(i).getTitle()</a>@if(session.get("user") != null) {
             <div class="thumb_options2"> 
-            <a class="pub" style="@if(photos(i).isPub()){display: none;}" href="#" onclick="vis($(this), &#39;/pub/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()&#39;)">public</a>
-            <a class="priv" style="@if(!photos(i).isPub()){display: none;}" href="#" onclick="vis($(this), &#39;/priv/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()&#39;)">private</a>
+            <a class="pub vis" style="@if(photos(i).isPub()){display: none;}" href="#" onclick="vis($(this), &#39;/pub/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()&#39;)">public</a>
+            <a class="priv vis" style="@if(!photos(i).isPub()){display: none;}" href="#" onclick="vis($(this), &#39;/priv/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()&#39;)">private</a>
             </div>}' data-lightview-group-options="controls: 'thumbnails', slideshow: 3000" data-lightview-options="thumbnail: '@photos(i).getThumbs().get(1)', shadow: true" data-lightview-type="image" href="@photos(i).getThumbs().get(2)" data-lightview-caption="">
 	            <div id="t@i" class="thumb" style="background-image: url('@routes.Assets.at("images/ajax-loader7.gif")'); background-position: 50% 50%; "></div>
-	            <div id="u@photos(i).hashCode()" class="thumb ttip" onmouseover="exif('@session.get("si")', '@photos(i).getAlbumId()', '@photos(i).getId()')" style="float: none; display: none; background-image: url(@photos(i).getThumbs().get(0)); "></div>
+	            <div id="u@photos(i).hashCode()" class="showexif thumb ttip" si='@session.get("si")' ai='@photos(i).getAlbumId()' pi='@photos(i).getId()' style="float: none; display: none; background-image: url(@photos(i).getThumbs().get(0)); "></div>
 	            <img style="display: none;" src="@photos(i).getThumbs().get(0)" onload="$('#t@i').hide(); $('#u@photos(i).hashCode()').show();"/>
             </a>
             <a href="@photos(i).getThumbs().get(2)" title='@Messages("openinneww")' target="_blank"><img class="full" src="@routes.Assets.at("images/n3.png")" alt="full size"></a>
@@ -78,8 +78,8 @@
             
             @if(session.get("user") != null) {
 			<div class="thumb_options">
-				<a href="#" class="pub" style="@if(photos(i).isPub()){display: none;}" onclick="vis($(this),'/pub/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()')" >public</a>
-				<a href="#" class="priv" style="@if(!photos(i).isPub()){display: none;}" onclick="vis($(this),'/priv/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()')" >private</a>
+                <a href="#" class="pub vis" style="@if(photos(i).isPub()){display: none;}" url='/pub/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()' al="false" >public</a>
+                <a href="#" class="priv vis" style="@if(!photos(i).isPub()){display: none;}" url='/priv/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()' al="false" >private</a>
 			</div>
 			}   
         </div>

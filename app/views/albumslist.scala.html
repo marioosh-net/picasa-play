@@ -35,7 +35,7 @@
 	       <div id="albums-only">
 	       @for(i <- albums.indices) {
 	       
-            <a onclick="openalbum('/album/@albums(i).getServiceIndex()/@albums(i).getId()', '#uu@i')" href="#" title="@albums(i).getTitle()" class="@if(albums(i).isPub()){pub}" >
+            <a url='/album/@albums(i).getServiceIndex()/@albums(i).getId()' selector='#uu@i' href="#" title="@albums(i).getTitle()" class="openalbum @if(albums(i).isPub()){pub}" >
 		        <div id="uu@i" class='oneset oneset_@albums(i).getId() @if(albums(i).getId() == albumId){album-selected}'>
 		            @albums(i).getTitle()@*<span class="counts">(@albums(i).getCount())</span>*@
 		            @if(session.get("user") != null) {
