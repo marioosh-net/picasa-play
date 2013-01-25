@@ -33,7 +33,7 @@ var photosEventHandlers = function(t){
     $('.showexif').mouseover(function(){
     	exif($(this).attr('si'), $(this).attr('ai'), $(this).attr('pi'));	
     });		
-    $('.pages').click(function(){
+    $('.page').click(function(){
     	loadingIcon(this); 
     	$('#right').load($(this).attr('url'), function(){
     		photosEventHandlers(true);

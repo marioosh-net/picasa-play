@@ -36,7 +36,7 @@
 				@if((p-1) * map.get("per") + 1 == map.get("start")) {
 					<div><span style="color: #fff;">[@p]</span></div>
 				} else {
-					<div><a class="pages" href="#" url='/album/@session.get("si")/@session.get("ai")?start=@((p-1) * map.get("per") + 1)' >[@p]</a></div>
+					<div><a class="page" href="#" url='/album/@session.get("si")/@session.get("ai")?start=@((p-1) * map.get("per") + 1)' >[@p]</a></div>
 				}
 			}	
 			
