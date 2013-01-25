@@ -1,6 +1,7 @@
 package model;
 
 import java.util.List;
+import com.google.gdata.data.DateTime;
 import com.google.gdata.data.photos.ExifTags;
 
 
@@ -13,8 +14,10 @@ public class Photo {
 	private String[] keywords;
 	private boolean pub;
 	private ExifTags exif;
+	private DateTime published;
+	private DateTime updated;
 	
-	public Photo(String title, String id, List<String> thumbs, String content, String albumId, String[] keywords, boolean pub, ExifTags exif) {
+	public Photo(String title, String id, List<String> thumbs, String content, String albumId, String[] keywords, boolean pub, ExifTags exif, DateTime published, DateTime updated) {
 		super();
 		this.title = title;
 		this.id = id;
@@ -24,6 +27,8 @@ public class Photo {
 		this.keywords = keywords;
 		this.pub = pub;
 		this.exif = exif;
+		this.published = published;
+		this.updated = updated;
 	}
 
 	public String getTitle() {
@@ -96,5 +101,22 @@ public class Photo {
 	
 	public void setExif(ExifTags exif) {
 		this.exif = exif;
+	}
+	
+	
+	public DateTime getPublished() {
+		return published;
+	}
+	
+	public void setPublished(DateTime published) {
+		this.published = published;
+	}
+	
+	public DateTime getUpdated() {
+		return updated;
+	}
+	
+	public void setUpdated(DateTime updated) {
+		this.updated = updated;
 	}
 }

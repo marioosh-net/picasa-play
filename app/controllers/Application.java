@@ -299,8 +299,8 @@ public class Application extends Controller {
 		session("ai", albumId+"");
 		URL feedUrl = new URL(API_FEED_URL+"/albumid/"+albumId+"?kind=photo"+"&thumbsize="+THUMB_SIZE+"&imgmax="+IMG_SIZE+
 				(session("user") != null ?
-						"&fields=id,title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords),openSearch:totalResults,openSearch:startIndex,openSearch:itemsPerPage"	:
-						"&fields=title,openSearch:totalResults,openSearch:startIndex,openSearch:itemsPerPage,entry[media:group/media:keywords='public'%20or%20media:group/media:keywords='public,%20picnik'%20or%20media:group/media:keywords='picnik,%20public'](title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords)")+
+						"&fields=id,title,entry(published,updated,title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords),openSearch:totalResults,openSearch:startIndex,openSearch:itemsPerPage"	:
+						"&fields=title,openSearch:totalResults,openSearch:startIndex,openSearch:itemsPerPage,entry[media:group/media:keywords='public'%20or%20media:group/media:keywords='public,%20picnik'%20or%20media:group/media:keywords='picnik,%20public'](published,updated,title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords)")+
 				(session("user") != null ? 
 						"&max-results="+max+"&start-index="+start : 
 						"")
@@ -348,10 +348,19 @@ public class Application extends Controller {
 								g.getThumbnails().get(2).getUrl()}), 
 						g.getContents().get(0).getUrl(), 
 						e.getExtension(GphotoAlbumId.class).getValue(), 
-						g.getKeywords().getKeywords().toArray(new String[]{}), pub, exif));
+						g.getKeywords().getKeywords().toArray(new String[]{}), pub, exif, e.getPublished(), e.getUpdated()));
 				}
 			}
 		}
+
+		/* sortowanie wg daty publikacji, gdyby &tag=public dzialalo prawidlowo 
+		Collections.sort(lp, new Comparator<Photo>() {
+			@Override
+			public int compare(Photo o1, Photo o2) {
+				return o1.getPublished().compareTo(o2.getPublished());
+			}
+		});
+		*/
 		
 		return photos.render(feed, lp, null, map, pages);
 	}
