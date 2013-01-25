@@ -63,7 +63,7 @@
 	<div id="photos">
     @for(i <- photos.indices) {
         <div id="th@i" class="thumb_box" style="@if(session.get("user") != null){height:auto;}" >
-            <a class="lv" href="@photos(i).getThumbs().get(2)" thumbnail="@photos(i).getThumbs().get(1)" data-lightview-group="a@photos(i).getAlbumId()" data-lightview-title='<a href="@photos(i).getContent()" target="_blank">@photos(i).getTitle()</a>@if(session.get("user") != null) {
+            <a class="lv" pos="@(i+1)" href="@photos(i).getThumbs().get(2)" thumbnail="@photos(i).getThumbs().get(1)" data-lightview-group="a@photos(i).getAlbumId()" data-lightview-title='<a href="@photos(i).getContent()" target="_blank">@photos(i).getTitle()</a>@if(session.get("user") != null) {
             <div class="thumb_options2"> 
             <a class="pub vis vis-title" onclick="visc(this)" style="@if(photos(i).isPub()){display: none;}" href="#" url=&#39;/pub/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()&#39; al="false" >public</a>
             <a class="priv vis vis-title" onclick="visc(this)" style="@if(!photos(i).isPub()){display: none;}" href="#" url=&#39;/priv/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()&#39; al="false" >private</a>

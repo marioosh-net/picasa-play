@@ -76,7 +76,7 @@ var photosEventHandlers = function(t){
     		    	vis($(this),$(this).attr('url'),$(this).attr('al'));
     		    });
     		}	
-    	});
+    	}, $(this).attr('pos'));
     });    
     
 };		
