@@ -44,7 +44,51 @@ var photosEventHandlers = function(t){
     $('.vis').click(function(){
     	vis($(this),$(this).attr('url'),$(this).attr('al'));
     });
+
+    /**
+     * Lightview
+     */
+    $('.lv').bind('click', function(event) {
+    	event.preventDefault();
+    	var hrefs = $('.lv').map(function() { return $(this).attr('href'); }).get();
+    	var thumbs = $('.lv').map(function() { return $(this).attr('thumbnail'); }).get();
+    	var titles = $('.lv').map(function() { return $(this).attr('data-lightview-title'); }).get();
+    	var e = new Array();
+    	$.each(hrefs, function(i, value) {
+    		e[i] = 
+    			{
+    				url: value, 
+    				title: titles[i],
+    				options: {
+    					thumbnail: thumbs[i]
+    				} 
+    			};
+    	});
+    	/*alert($.toJSON(e));*/
+    	Lightview.show(e, {
+    		type: 'image',
+    		controls: 'thumbnails', 
+    		slideshow: 3000,
+    		shadow: true,
+    		afterUpdate: function(element, position) {
+    			/* dosn't work: title/caption element not rendered yet */
+    		    $('.vis-title').click(function(){
+    		    	vis($(this),$(this).attr('url'),$(this).attr('al'));
+    		    });
+    		}	
+    	});
+    });    
+    
 };		
+
+/**
+ * preserve name temporarily
+ * becacause of can't register handler dymaically (title/caption element not rendered yet)
+ */
+window['visc'] = visc
+function visc(e) {
+	vis($(e),$(e).attr('url'),$(e).attr('al'));
+}
 
 function openalbum(url, selector) {
 	$('.oneset').removeClass('album-selected'); 
@@ -146,7 +190,6 @@ function msg(m) {
 	});
 }
 
-window['vis'] = vis; /* preserve name temporarily (lightview problem) */
 function vis(_this, url, album) {
 	if($(_this).parent().find('.loading').length == 0) {
 		$(_this).parent().append("<img class='loading' src='/assets/images/ajax-loader7.gif'/>");
