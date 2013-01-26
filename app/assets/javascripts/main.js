@@ -47,7 +47,7 @@ var photosEventHandlers = function(t){
 
     /**
      * Lightview
-     */
+     *
     $('.lv').bind('click', function(event) {
     	event.preventDefault();
     	var hrefs = $('.lv').map(function() { return $(this).attr('href'); }).get();
@@ -64,20 +64,20 @@ var photosEventHandlers = function(t){
     				} 
     			};
     	});
-    	/*alert($.toJSON(e));*/
     	Lightview.show(e, {
     		type: 'image',
     		controls: 'thumbnails', 
     		slideshow: 3000,
     		shadow: true,
     		afterUpdate: function(element, position) {
-    			/* dosn't work: title/caption element not rendered yet */
+    			// dosn't work: title/caption element not rendered yet 
     		    $('.vis-title').click(function(){
     		    	vis($(this),$(this).attr('url'),$(this).attr('al'));
     		    });
     		}	
     	}, $(this).attr('pos'));
     });    
+    */
     
 };		
 
