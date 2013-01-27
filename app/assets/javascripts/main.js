@@ -47,37 +47,29 @@ var photosEventHandlers = function(t){
 
     /**
      * Lightview
-     *
+     */
+	var hrefs = $('.lv').map(function() { return $(this).attr('href'); }).get();
+	var thumbs = $('.lv').map(function() { return $(this).attr('thumbnail'); }).get();
+	var titles = $('.lv').map(function() { return $(this).attr('data-lightview-title'); }).get();
+	var e = new Array();
+	$.each(hrefs, function(i, value) {
+		e[i] = 
+			{
+				url: value, 
+				title: titles[i],
+				type: 'image',
+				options: {
+					thumbnail: thumbs[i],
+		    		controls: 'thumbnails', 
+		    		slideshow: 3000,
+		    		shadow: true
+				}
+			};
+	});
     $('.lv').bind('click', function(event) {
     	event.preventDefault();
-    	var hrefs = $('.lv').map(function() { return $(this).attr('href'); }).get();
-    	var thumbs = $('.lv').map(function() { return $(this).attr('thumbnail'); }).get();
-    	var titles = $('.lv').map(function() { return $(this).attr('data-lightview-title'); }).get();
-    	var e = new Array();
-    	$.each(hrefs, function(i, value) {
-    		e[i] = 
-    			{
-    				url: value, 
-    				title: titles[i],
-    				options: {
-    					thumbnail: thumbs[i]
-    				} 
-    			};
-    	});
-    	Lightview.show(e, {
-    		type: 'image',
-    		controls: 'thumbnails', 
-    		slideshow: 3000,
-    		shadow: true,
-    		afterUpdate: function(element, position) {
-    			// dosn't work: title/caption element not rendered yet 
-    		    $('.vis-title').click(function(){
-    		    	vis($(this),$(this).attr('url'),$(this).attr('al'));
-    		    });
-    		}	
-    	}, $(this).attr('pos'));
+    	Lightview.show(e, {}, parseInt($(this).attr('pos'), 10));
     });    
-    */
     
 };		
 
@@ -95,9 +87,23 @@ function openalbum(url, selector) {
 	$(selector).addClass('album-selected'); 
 	$('#exif').html(''); 
 	loading('#right'); 
+	xhr = $.ajax({
+		url: url,
+		beforeSend: function() {
+			if(xhr && xhr.readystate != 4){
+	            xhr.abort();
+	        }		
+		},
+		success: function(data) {
+			$('#right').html(data);
+			photosEventHandlers(true);
+		}
+	});
+	/*
 	$('#right').load(url, function(){
 		photosEventHandlers(true);
-	}); 
+	});
+	*/ 
 	return false;	
 }
 
