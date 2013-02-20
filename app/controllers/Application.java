@@ -217,7 +217,7 @@ public class Application extends Controller {
 			return cached; 
 		} else {
 			Logger.debug("NOT CACHED");
-			Logger.info("Getting albums list...");
+			Logger.info("Getting albums list (IP: "+request().remoteAddress()+")...");
 			URL feedUrl = new URL(API_FEED_URL+"?kind=album&thumbsize="+THUMB_SIZE+"&fields=entry(title,id,gphoto:id,gphoto:numphotos,media:group/media:thumbnail,media:group/media:keywords)");
 			Query albumQuery = new Query(feedUrl);
 			
@@ -293,7 +293,7 @@ public class Application extends Controller {
 	 * @throws ServiceException
 	 */
 	private static Html photosHtml(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
-		Logger.info("Getting photos list...");
+		Logger.info("Getting photos list (IP: "+request().remoteAddress()+")...");
 		myService = myServices.get(serviceIndex);
 		session("si", serviceIndex+"");
 		session("ai", albumId+"");
