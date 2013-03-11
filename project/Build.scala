@@ -15,7 +15,8 @@ object ApplicationBuild extends Build {
       "javax.mail" % "mail" % "1.4",
       "commons-beanutils" % "commons-beanutils" % "1.8.3",
       "commons-collections" % "commons-collections" % "3.2.1",
-      "net.htmlparser.jericho" % "jericho-html" % "3.1"
+      "net.htmlparser.jericho" % "jericho-html" % "3.1",
+      "org.apache.httpcomponents" % "httpclient" % "4.2.3"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = JAVA).settings(

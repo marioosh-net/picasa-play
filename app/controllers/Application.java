@@ -1,5 +1,6 @@
 package controllers;
 
+import interceptors.Geo;
 import interceptors.Logged;
 import java.io.File;
 import java.io.FileInputStream;
@@ -209,6 +210,7 @@ public class Application extends Controller {
 	 * @throws ServiceException 
 	 * @throws IOException 
 	 */
+	@Geo
 	public static List<Album> getAlbums() throws IOException, ServiceException {
 				
 		String uuid = getUUID();
@@ -265,6 +267,7 @@ public class Application extends Controller {
 	 * @throws IOException
 	 * @throws ServiceException
 	 */
+	@Geo
 	public static Result direct(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
 		return ok(main.render(albumId+"", albumslist.render(getAlbums(), albumId), photosHtml(serviceIndex, albumId, start, max)));
 	}
@@ -279,6 +282,7 @@ public class Application extends Controller {
 	 * @throws IOException
 	 * @throws ServiceException
 	 */
+	@Geo
 	public static Result photos(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
 		return ok(photosHtml(serviceIndex, albumId, start, max));
 	}
