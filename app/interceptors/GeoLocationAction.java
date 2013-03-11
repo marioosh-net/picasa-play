@@ -1,5 +1,7 @@
 package interceptors;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -26,6 +28,7 @@ public class GeoLocationAction extends Action<Geo> {
 	@Override
 	public Result call(Context paramContext) throws Throwable {
 		String ip = paramContext.request().remoteAddress();
+		ip = getIp(ip);
 		try {
 			Logger.info("GEO: "+geo(ip));
 		} catch (Exception e) {
@@ -50,6 +53,14 @@ public class GeoLocationAction extends Action<Geo> {
         } finally {
             // HTTP_CLIENT.getConnectionManager().shutdown();
         }
-
 	}
+	
+	public static String getIp(String s) {
+		Pattern p = Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}");
+		Matcher m = p.matcher(s);
+		while(m.find()) {
+			return m.group();
+		}
+		return null;
+	}	
 }
