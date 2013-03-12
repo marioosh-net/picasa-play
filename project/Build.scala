@@ -1,6 +1,8 @@
 import sbt._
 import Keys._
 import PlayProject._
+import PlayProject._
+import com.github.play2war.plugin._
 
 object ApplicationBuild extends Build {
 
@@ -22,7 +24,8 @@ object ApplicationBuild extends Build {
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = JAVA).settings(
       resolvers <+= baseDirectory { base => 
         "my" at "file:///"+base.getAbsolutePath+"/repo"
-      }
-    )
+      },
+      Play2WarKeys.servletVersion := "3.0"
+    ).settings(Play2WarPlugin.play2WarSettings: _*)
 
 }
