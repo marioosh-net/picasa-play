@@ -9,6 +9,7 @@ object ApplicationBuild extends Build {
     val appVersion      = "1.0-SNAPSHOT"
 
     val appDependencies = Seq(
+    	javaCore,
       "com.google.gdata" % "gdata-core" % "1.0",
       "com.google.gdata" % "gdata-photos" % "2.0",
       "com.google.gdata" % "gdata-photos-meta" % "2.0",
