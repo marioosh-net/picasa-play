@@ -186,6 +186,7 @@ function loadingIcon(a){
 	$(a).html("<img src='/assets/images/ajax-loader7.gif'/>");
 }
 
+window['msg'] = msg
 function msg(m) {
 	$(function(){
 	    $('#msg')
