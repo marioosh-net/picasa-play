@@ -2,12 +2,16 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Home page
-POST     /login                                      controllers.Application.login()
+# login/logout
+POST    /login                                      controllers.Application.login()
 GET     /logout                                     controllers.Application.logout()
+
+# main
 GET     /                                           controllers.Application.albums()
-GET     /album/:serviceIndex/:albumId               controllers.Application.photos(serviceIndex:Int, albumId, start:Int ?=1, max:Int ?=24)
-GET     /direct/:serviceIndex/:albumId              controllers.Application.direct(serviceIndex:Int, albumId, start:Int ?=1, max:Int ?=24)
+GET     /album/:serviceIndex/:albumId               controllers.Application.photos(serviceIndex:Int, albumId, start:Int ?=1, max:Int ?=24, direct: Boolean ?=false)
+GET     /direct/:serviceIndex/:albumId              controllers.Application.photos(serviceIndex:Int, albumId, start:Int ?=1, max:Int ?=24, direct: Boolean ?=true)
+
+# operations/ajax
 GET     /pub/:serviceIndex/:albumId/:photoId        controllers.Application.pub(serviceIndex:Int, albumId, photoId)
 GET     /priv/:serviceIndex/:albumId/:photoId       controllers.Application.priv(serviceIndex:Int, albumId, photoId)
 GET     /pub/:serviceIndex/:albumId                 controllers.Application.pubAlbum(serviceIndex:Int, albumId)

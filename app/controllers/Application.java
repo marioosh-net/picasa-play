@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -31,6 +32,8 @@ import play.Logger;
 import play.i18n.Messages;
 import play.api.templates.Html;
 import play.cache.Cache;
+import play.libs.Akka;
+import play.libs.F.Promise;
 import play.mvc.Controller;
 import play.mvc.Result;
 import views.html.albums;
@@ -158,7 +161,7 @@ public class Application extends Controller {
 	public static Result logout() throws IOException, ServiceException {
 		session().clear();
 		// Cache.set("albums", null);
-		return ok(albums.render(getAlbums()));
+		return redirect("/");
 	}
 	
 	/**
@@ -181,7 +184,7 @@ public class Application extends Controller {
 	    	return redirect("/");
 	    }
 		flash("message", Messages.get("loginerror"));
-		return ok(albums.render(getAlbums()));
+		return redirect("/");
 	}
 	
 	/**
@@ -202,6 +205,57 @@ public class Application extends Controller {
 			loadServices();
 			return redirect("/");
 		} 
+	}
+	
+	public static Promise<List<Album>> getAlbumsPromise() throws IOException, ServiceException {
+		final String sessionUser = session("user");
+		return Akka.future(new Callable<List<Album>>() {
+			@Override
+			public List<Album> call() throws Exception {
+				String uuid = getUUID();
+				List<Album> cached = (List<Album>) Cache.get(uuid+"albums");
+				if(cached != null) {
+					Logger.debug("CACHED");
+					return cached; 
+				} else {
+					Logger.debug("NOT CACHED");
+					Logger.info("Getting albums list ("+new SimpleDateFormat("dd.MM.yyyy hh:ss:mm").format(new Date(System.currentTimeMillis()))+" | IP: "+request().remoteAddress()+")...");
+					URL feedUrl = new URL(API_FEED_URL+"?kind=album&thumbsize="+THUMB_SIZE+"&fields=entry(title,id,gphoto:id,gphoto:numphotos,media:group/media:thumbnail,media:group/media:keywords)");
+					Query albumQuery = new Query(feedUrl);
+					
+					List<Album> l = new ArrayList<Album>();		
+					int i = 0;
+					for(PicasawebService s: myServices) {
+						Logger.debug(feedUrl.toString());			
+						UserFeed feed = s.query(albumQuery, UserFeed.class);
+						for (GphotoEntry e : feed.getEntries()) {
+							// Utils.describe(e);
+							if(e.getGphotoId() != null) {
+								
+								if(sessionUser != null || e.getTitle().getPlainText().endsWith("\u00A0")) {
+									String t = e.getTitle().getPlainText();
+									if(t.length() > 40) {
+										t = t.substring(0, 39)+"...";
+									}
+									l.add(new Album(e.getGphotoId(), t, e.getExtension(MediaGroup.class).getThumbnails().get(0).getUrl(), e.getExtension(GphotoPhotosUsed.class).getValue(), i, e.getTitle().getPlainText().endsWith("\u00A0"), myServicesLogins.get(i)));
+								}
+							} else {
+								// tag... (?kind=album,tag)
+								Logger.debug("album TAG: "+e.getTitle().getPlainText());
+							}
+						}
+						i++;
+					}
+					Collections.sort(l, new Comparator<Album>() {
+						@Override
+						public int compare(Album o1, Album o2) {
+							return o2.getTitle().compareTo(o1.getTitle());
+						}});
+					Cache.set(uuid+"albums", l, 3600);
+					return l;
+				}
+			}
+		});		
 	}
 	
 	/**
@@ -258,21 +312,10 @@ public class Application extends Controller {
 	}
 
 	/**
-	 * full page with opened album (by url)
-	 * @param serviceIndex
-	 * @param albumId
-	 * @param start
-	 * @param max
-	 * @return
-	 * @throws IOException
-	 * @throws ServiceException
-	 */
-	public static Result direct(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
-		return ok(main.render(albumId+"", albumslist.render(getAlbums(), albumId), photosHtml(serviceIndex, albumId, start, max)));
-	}
-	
-	/**
 	 * photos in album as Result
+	 * or
+	 * direct: full page with opened album (by url)
+	 * 
 	 * @param serviceIndex
 	 * @param albumId
 	 * @param start
@@ -281,8 +324,17 @@ public class Application extends Controller {
 	 * @throws IOException
 	 * @throws ServiceException
 	 */
-	public static Result photos(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
-		return ok(photosHtml(serviceIndex, albumId, start, max));
+	public static Result photos(int serviceIndex, String albumId, int start, int max, final boolean direct) throws IOException, ServiceException {
+		
+		final String sessionUser = session("user");
+		
+		Promise<List<Album>> p = getAlbumsPromise();
+		
+		if(direct) {
+			return ok(main.render(albumId+"", albumslist.render(getAlbums(), albumId), photosHtml(serviceIndex, albumId, start, max)));
+		} else {
+			return ok(photosHtml(serviceIndex, albumId, start, max));
+		}
 	}
 	
 	/**
