@@ -3,6 +3,11 @@
         <account username="waclaw.bezimienny" password="b7FEvW4mSy9C"/>
         <account username="waclaw.bezimienny2" password="b7FEvW4mSy9C"/>
     </picasa>
+    <flickr>
+        <account secret="17aebaefbdd995ef" apiKey="433ea818849c5c5ed6ac545b243196b1" userid="96083601@N05" 
+        accessToken="..." 
+        accessSecret="..."/>
+    </flickr>
     <settings>
         <local>
             <account login="admin" password="password1" role="admin"/>

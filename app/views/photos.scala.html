@@ -1,4 +1,4 @@
-@(feed: com.google.gdata.data.photos.AlbumFeed, photos: List[model.Photo], albums: List[model.Album], map: java.util.HashMap[String,Integer], pages: List[Integer])
+@(feed: com.flickr4java.flickr.photosets.Photoset, photos: List[model.Photo], albums: List[model.Album], map: java.util.HashMap[String,Integer], pages: List[Integer])
 @*
 @main("Photos",null) {
 	@albumslist(albums)
@@ -6,7 +6,7 @@
 *@
     <div id="photos-header">
     <div class="left album-title">
-        <a href="/">@Messages("albums")</a>&nbsp;&raquo;&nbsp; <a href="/direct/@session.get("si")/@session.get("ai")#direct">@session.get("aname")@*@feed.getTitle().getPlainText()*@</a>
+        <a href="/">@Messages("albums")</a>&nbsp;&raquo;&nbsp; <a href="/direct/@session.get("si")/@session.get("ai")#direct">@session.get("aname")@*@feed.getTitle()*@</a>
         @if(session.get("user") != null) {
         <span class="album_options">
 	        <a class="pub vis" href="#" style="@if(session.get("pub") != null){display: none;}" url='/pub/@session.get("si")/@session.get("ai")' al='true'>public</a>
@@ -33,10 +33,10 @@
 	@if(pages.size() > 1) {
 		<div class="pages">
 			@for(p <- pages) {
-				@if((p-1) * map.get("per") + 1 == map.get("start")) {
+				@if(p == map.get("start")) {
 					<div><span style="color: #fff;">[@p]</span></div>
 				} else {
-					<div><a class="page" href="#" url='/album/@session.get("si")/@session.get("ai")?start=@((p-1) * map.get("per") + 1)' >[@p]</a></div>
+					<div><a class="page" href="#" url='/album/@session.get("si")/@session.get("ai")?start=@p' >[@p]</a></div>
 				}
 			}	
 			
@@ -44,10 +44,10 @@
 			
 			@*
 			@if(map.get("start") != 1) {
-				<div><a href="#" onclick="loadingIcon(this); $('#right').load('/album/@session.get("si")/@session.get("ai")?start=@(map.get("start")-map.get("per"))'); return false;">[&laquo; prev ]</a></div>
+				<div><a href="#" onclick="loadingIcon(this); $('#right').load('/album/@session.get("si")/@session.get("ai")?start=@(map.get("start")-1)'); return false;">[&laquo; prev ]</a></div>
 			}
-			@if(map.get("start")+map.get("per")-1 < map.get("total")) {
-				<div><a href="#" onclick="loadingIcon(this); $('#right').load('/album/@session.get("si")/@session.get("ai")?start=@(map.get("start")+map.get("per"))'); return false;">[ next &raquo;]</a></div>
+			@if(map.get("start") < map.get("total")) {
+				<div><a href="#" onclick="loadingIcon(this); $('#right').load('/album/@session.get("si")/@session.get("ai")?start=@(map.get("start")+1)'); return false;">[ next &raquo;]</a></div>
 			}
 			*@
 		</div>
@@ -56,7 +56,7 @@
 }
 @******* show pages END ********@
 
-@if(session.get("user") != null) {
+@if(session.get("user") != null || true) {
 	@showPages()
 }
 
@@ -69,7 +69,7 @@
             <a class="priv vis vis-title" onclick="visc(this)" style="@if(!photos(i).isPub()){display: none;}" href="#" url=&#39;/priv/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()&#39; al="false" >private</a>
             </div>}'>
 	            <div id="t@i" class="thumb" style="background-image: url('@routes.Assets.at("images/ajax-loader7.gif")'); background-position: 50% 50%; "></div>
-	            <div id="u@photos(i).hashCode()" class="showexif thumb ttip" si='@session.get("si")' ai='@photos(i).getAlbumId()' pi='@photos(i).getId()' style="float: none; display: none; background-image: url(@photos(i).getThumbs().get(0)); "></div>
+	            <div id="u@photos(i).hashCode()" class="showexif thumb ttip" si='@session.get("si")' ai='@photos(i).getAlbumId()' pi='@photos(i).getId()' ps='@photos(i).getSecret()' style="float: none; display: none; background-image: url(@photos(i).getThumbs().get(0)); "></div>
 	            <img style="display: none;" src="@photos(i).getThumbs().get(0)" onload="$('#t@i').hide(); $('#u@photos(i).hashCode()').show();"/>
             </a>
             <a href="@photos(i).getThumbs().get(2)" title='@Messages("openinneww")' target="_blank"><img class="full" src="@routes.Assets.at("images/n3.png")" alt="full size"></a>
@@ -86,7 +86,7 @@
     <div class="clear"></div>
     </div>
     
-@if(session.get("user") != null) {
+@if(session.get("user") != null || true) {
 	@showPages()
 }
 

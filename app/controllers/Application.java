@@ -6,14 +6,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
@@ -23,39 +26,38 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import model.Album;
 import model.Photo;
+import org.apache.commons.beanutils.BeanUtils;
+import org.scribe.model.Token;
+import org.scribe.model.Verifier;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import others.Role;
+import others.Service;
 import play.Logger;
-import play.i18n.Messages;
 import play.api.templates.Html;
 import play.cache.Cache;
+import play.i18n.Messages;
 import play.mvc.Controller;
 import play.mvc.Result;
 import views.html.albums;
 import views.html.albumslist;
+import views.html.auth;
+import views.html.exif;
 import views.html.main;
 import views.html.photos;
-import views.html.exif;
-import com.google.gdata.client.Query;
-import com.google.gdata.client.photos.PicasawebService;
-import com.google.gdata.data.PlainTextConstruct;
-import com.google.gdata.data.media.mediarss.MediaGroup;
-import com.google.gdata.data.photos.AlbumEntry;
-import com.google.gdata.data.photos.AlbumFeed;
-import com.google.gdata.data.photos.ExifTags;
-import com.google.gdata.data.photos.GphotoAlbumId;
-import com.google.gdata.data.photos.GphotoEntry;
-import com.google.gdata.data.photos.GphotoId;
-import com.google.gdata.data.photos.GphotoPhotosUsed;
-import com.google.gdata.data.photos.PhotoEntry;
-import com.google.gdata.data.photos.TagEntry;
-import com.google.gdata.data.photos.UserFeed;
-import com.google.gdata.data.photos.impl.ExifTag;
-import com.google.gdata.util.ParseException;
-import com.google.gdata.util.ServiceException;
-import com.google.gdata.util.ServiceForbiddenException;
+import com.flickr4java.flickr.Flickr;
+import com.flickr4java.flickr.FlickrException;
+import com.flickr4java.flickr.REST;
+import com.flickr4java.flickr.RequestContext;
+import com.flickr4java.flickr.auth.Auth;
+import com.flickr4java.flickr.auth.AuthInterface;
+import com.flickr4java.flickr.photos.Exif;
+import com.flickr4java.flickr.photos.PhotoList;
+import com.flickr4java.flickr.photosets.Photoset;
+import com.flickr4java.flickr.photosets.Photosets;
+import com.flickr4java.flickr.photosets.PhotosetsInterface;
+import com.flickr4java.flickr.tags.Tag;
 import exceptions.NoAccountsException;
 
 public class Application extends Controller {
@@ -69,10 +71,12 @@ public class Application extends Controller {
 	
 	static final Map<String, Object[]> local = new HashMap<String, Object[]>();
 	static public final Map<String, Object> settings = new HashMap<String, Object>();
-	static public List<PicasawebService> myServices = new ArrayList<PicasawebService>();
-	static public List<String> myServicesLogins = new ArrayList<String>();
-	static private PicasawebService myService;
+	static public List<Service> myServices = new ArrayList<Service>();
+	static private Service myService;
 
+	static Token requestToken;
+	static Token accessToken;
+	
 	/**
 	 * load configuration from config.xml
 	 * init picasa services
@@ -84,7 +88,6 @@ public class Application extends Controller {
 		try {
 			Logger.info("Loading services...");
 			myServices.clear();
-			myServicesLogins.clear();
 			
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
@@ -107,16 +110,18 @@ public class Application extends Controller {
 			/**
 			 * picasa accounts
 			 */
-			NodeList l = (NodeList) xpath.evaluate("//picasa/account", doc, XPathConstants.NODESET);
+			NodeList l = (NodeList) xpath.evaluate("//flickr/account", doc, XPathConstants.NODESET);
 			for(int i=0; i < l.getLength(); i++) {
 				Node account = l.item(i);
-				String username = account.getAttributes().getNamedItem("username").getNodeValue();
-				String password = account.getAttributes().getNamedItem("password").getNodeValue();
-				
-				PicasawebService myService = new PicasawebService("testApp");
-				myService.setUserCredentials(username, password);
-				myServices.add(myService);
-				myServicesLogins.add(username);				
+				String apiKey = account.getAttributes().getNamedItem("apiKey").getNodeValue();
+				String secret = account.getAttributes().getNamedItem("secret").getNodeValue();
+				String accessToken = account.getAttributes().getNamedItem("accessToken").getNodeValue();
+				String accessSecret = account.getAttributes().getNamedItem("accessSecret").getNodeValue();
+				Flickr myService = new Flickr(apiKey, secret, new REST());
+                AuthInterface a = myService.getAuthInterface();
+				Auth auth = a.checkToken(new Token(accessToken, accessSecret));
+				myService.setAuth(auth);
+				myServices.add(new Service(myService, auth));
 			}
 			
 			/**
@@ -138,6 +143,8 @@ public class Application extends Controller {
 			settings.put("title", n.getTextContent());
 			
 			in.close();
+			
+			Logger.info(settings.toString());
 		
 			if(myServices.size() == 0) {
 				throw new NoAccountsException();
@@ -154,8 +161,9 @@ public class Application extends Controller {
 	 * @return
 	 * @throws IOException
 	 * @throws ServiceException
+	 * @throws FlickrException 
 	 */
-	public static Result logout() throws IOException, ServiceException {
+	public static Result logout() throws IOException, FlickrException {
 		session().clear();
 		// Cache.set("albums", null);
 		return ok(albums.render(getAlbums()));
@@ -166,8 +174,9 @@ public class Application extends Controller {
 	 * @return
 	 * @throws IOException
 	 * @throws ServiceException
+	 * @throws FlickrException 
 	 */
-	public static Result login() throws IOException, ServiceException {
+	public static Result login() throws IOException, FlickrException {
 		
 		String uuid = getUUID();
 		final Map<String, String[]> values = request().body().asFormUrlEncoded();
@@ -191,13 +200,13 @@ public class Application extends Controller {
 	 * @throws ServiceException
 	 * @throws NoAccountsException
 	 */
-	public static Result albums() throws IOException, ServiceException, NoAccountsException {
+	public static Result albums() throws IOException, NoAccountsException {
 		if(request().queryString().get("lang") != null) {
 			response().setCookie("lang", request().queryString().get("lang")[0]);
 		}		
 		try {
 			return ok(albums.render(getAlbums()));
-		} catch (ServiceForbiddenException e) {
+		} catch (FlickrException e) {
 			Logger.error(e.getMessage(), e);
 			loadServices();
 			return redirect("/");
@@ -209,9 +218,10 @@ public class Application extends Controller {
 	 * @return
 	 * @throws ServiceException 
 	 * @throws IOException 
+	 * @throws FlickrException 
 	 */
 	@Geo
-	public static List<Album> getAlbums() throws IOException, ServiceException {
+	public static List<Album> getAlbums() throws FlickrException {
 				
 		String uuid = getUUID();
 		List<Album> cached = (List<Album>) Cache.get(uuid+"albums");
@@ -221,29 +231,16 @@ public class Application extends Controller {
 		} else {
 			Logger.debug("NOT CACHED");
 			Logger.info("Getting albums list ("+new SimpleDateFormat("dd.MM.yyyy hh:ss:mm").format(new Date(System.currentTimeMillis()))+" | IP: "+request().remoteAddress()+")...");
-			URL feedUrl = new URL(API_FEED_URL+"?kind=album&thumbsize="+THUMB_SIZE+"&fields=entry(title,id,gphoto:id,gphoto:numphotos,media:group/media:thumbnail,media:group/media:keywords)");
-			Query albumQuery = new Query(feedUrl);
 			
 			List<Album> l = new ArrayList<Album>();		
 			int i = 0;
-			for(PicasawebService s: myServices) {
-				Logger.debug(feedUrl.toString());			
-				UserFeed feed = s.query(albumQuery, UserFeed.class);
-				for (GphotoEntry e : feed.getEntries()) {
-					// Utils.describe(e);
-					if(e.getGphotoId() != null) {
-						
-						if(session("user") != null || e.getTitle().getPlainText().endsWith("\u00A0")) {
-							String t = e.getTitle().getPlainText();
-							if(t.length() > 40) {
-								t = t.substring(0, 39)+"...";
-							}
-							l.add(new Album(e.getGphotoId(), t, e.getExtension(MediaGroup.class).getThumbnails().get(0).getUrl(), e.getExtension(GphotoPhotosUsed.class).getValue(), i, e.getTitle().getPlainText().endsWith("\u00A0"), myServicesLogins.get(i)));
-						}
-					} else {
-						// tag... (?kind=album,tag)
-						Logger.debug("album TAG: "+e.getTitle().getPlainText());
-					}
+			for(Service se: myServices) {
+				Flickr s = se.getFlickr();
+				//RequestContext.getRequestContext().setAuth(s.getAuth()); // auth request
+				PhotosetsInterface psi = s.getPhotosetsInterface();
+				Photosets ps = psi.getList(se.getAuth().getUser().getId());
+				for (Photoset e: ps.getPhotosets()) {
+					l.add(new Album(e.getId(), e.getTitle(), e.getPrimaryPhoto().getSmallSquareUrl().replaceFirst("_s", "_q"), e.getPhotoCount(), i, true, myServices.get(i).getAuth().getUser().getId()));
 				}
 				i++;
 			}
@@ -267,7 +264,7 @@ public class Application extends Controller {
 	 * @throws IOException
 	 * @throws ServiceException
 	 */
-	public static Result direct(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
+	public static Result direct(int serviceIndex, String albumId, int start, int max) throws IOException, FlickrException {
 		return ok(main.render(albumId+"", albumslist.render(getAlbums(), albumId), photosHtml(serviceIndex, albumId, start, max)));
 	}
 	
@@ -280,8 +277,9 @@ public class Application extends Controller {
 	 * @return
 	 * @throws IOException
 	 * @throws ServiceException
+	 * @throws FlickrException 
 	 */
-	public static Result photos(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
+	public static Result photos(int serviceIndex, String albumId, int start, int max) throws IOException, FlickrException {
 		return ok(photosHtml(serviceIndex, albumId, start, max));
 	}
 	
@@ -295,68 +293,71 @@ public class Application extends Controller {
 	 * @throws IOException
 	 * @throws ServiceException
 	 */
-	private static Html photosHtml(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
+	private static Html photosHtml(int serviceIndex, String albumId, int start, int max) throws IOException, FlickrException {
 		Logger.info("Getting photos list ("+new SimpleDateFormat("dd.MM.yyyy hh:ss").format(new Date(System.currentTimeMillis()))+" | IP: "+request().remoteAddress()+")...");
 		myService = myServices.get(serviceIndex);
 		session("si", serviceIndex+"");
 		session("ai", albumId+"");
-		URL feedUrl = new URL(API_FEED_URL+"/albumid/"+albumId+"?kind=photo"+"&thumbsize="+THUMB_SIZE+"&imgmax="+IMG_SIZE+
-				(session("user") != null ?
-						"&fields=id,title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords),openSearch:totalResults,openSearch:startIndex,openSearch:itemsPerPage"	:
-						"&fields=title,openSearch:totalResults,openSearch:startIndex,openSearch:itemsPerPage,entry[media:group/media:keywords='public'%20or%20media:group/media:keywords='public,%20picnik'%20or%20media:group/media:keywords='picnik,%20public'](title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords)")+
-				(session("user") != null ? 
-						"&max-results="+max+"&start-index="+start : 
-						"")
-				//+(session("user") != null ? "" : "&tag=public") /* to rozsortowuje kolejnosc fotek! */
-				//+,exif:tags)"*/
-				);
-		Logger.debug(feedUrl.toString());
-		Query photosQuery = new Query(feedUrl);
+		
+		PhotosetsInterface in = myService.getFlickr().getPhotosetsInterface();
+		
+		//RequestContext.getRequestContext().setAuth(myService.getAuth()); // auth request
+		Photoset ps = in.getInfo(albumId);
+		Logger.info("TITLE: "+ps.getTitle());
+		
+		// RequestContext.getRequestContext().setAuth(myService.getAuth()); // auth request to get private albums
+		PhotoList<com.flickr4java.flickr.photos.Photo> pl = in.getPhotos(albumId, new HashSet<String>(){{add("tags,url_sq,url_t,date_taken");}}, Flickr.PRIVACY_LEVEL_PUBLIC, max, start);
+		Logger.info("PHOTOS :"+ pl.size()+"");
 		
 		// AlbumFeed feed = myService.getFeed(feedUrl, AlbumFeed.class);		
-		AlbumFeed feed = myService.query(photosQuery, AlbumFeed.class);
-		if(feed.getTitle().getPlainText().endsWith("\u00A0")) {
+		//AlbumFeed feed = myService.query(photosQuery, AlbumFeed.class);
+		//if(feed.getTitle().getPlainText().endsWith("\u00A0")) {
 			session("pub", "1");
-		} else {
-			session().remove("pub");
-		}
+		//} else {
+//			session().remove("pub");
+		//}
 		
-		String t = feed.getTitle().getPlainText();
+		String t = ps.getTitle();
 		session("aname", t);
-		Logger.debug("total:"+feed.getTotalResults());
-		Logger.debug("perPage:"+feed.getItemsPerPage());
-		Logger.debug("start:"+feed.getStartIndex());
+		Logger.debug("total:"+pl.getTotal());
+		Logger.debug("perPage:"+pl.getPerPage());
+		Logger.debug("start:"+pl.getPage());
 		java.util.HashMap<String, Integer> map = new java.util.HashMap<String, Integer>();
-		map.put("total",feed.getTotalResults());
-		map.put("start",feed.getStartIndex());
-		map.put("per",feed.getItemsPerPage());
+		map.put("total",pl.getTotal());
+		map.put("start",pl.getPage());
+		map.put("per",pl.getPerPage());
 		
 		List<Integer> pages = new ArrayList<Integer>();
-		for(int i = 1; i <= feed.getTotalResults()/feed.getItemsPerPage() + (feed.getTotalResults()%feed.getItemsPerPage() == 0 ? 0 : 1); i++) {
+		for(int i = 1; i <= pl.getTotal()/pl.getPerPage() + (pl.getTotal()%pl.getPerPage() == 0 ? 0 : 1); i++) {
 			pages.add(i);
 		}
 		
 		List<Photo> lp = new ArrayList<Photo>();
-		for(GphotoEntry<PhotoEntry> e: feed.getEntries()) {
-			MediaGroup g = e.getExtension(MediaGroup.class);
-			ExifTags exif = e.getExtension(ExifTags.class);
-			
-			if(g != null) {
-				boolean pub = g.getKeywords().getKeywords().contains("public");
-				if(session("user") != null || pub) {
-					lp.add(new Photo(e.getTitle().getPlainText(), 
-							e.getExtension(GphotoId.class).getValue(), 
-						Arrays.asList(new String[]{g.getThumbnails().get(0).getUrl(), 
-								g.getThumbnails().get(1).getUrl(), 
-								g.getThumbnails().get(2).getUrl()}), 
-						g.getContents().get(0).getUrl(), 
-						e.getExtension(GphotoAlbumId.class).getValue(), 
-						g.getKeywords().getKeywords().toArray(new String[]{}), pub, exif));
-				}
+		for(com.flickr4java.flickr.photos.Photo e: pl) {
+			Logger.info(e.getTitle() + ": "+e.isPublicFlag());
+			Collection<Exif> exif = null;//myService.getFlickr().getPhotosInterface().getExif(e.getId(), e.getSecret());
+			Collection<Tag> tags1 = e.getTags();
+			List<String> tags = new ArrayList<String>();
+			for(Tag tag: tags1) {
+				tags.add(tag.getValue());
 			}
+			
+			//if(g != null) {
+				boolean pub = e.isPublicFlag();
+				if(session("user") != null || pub || true) {
+					lp.add(new Photo(e.getTitle(), 
+							e.getId(), 
+						Arrays.asList(new String[]{e.getSmallSquareUrl().replaceFirst("_s", "_q"), e.getThumbnailUrl(), e.getLargeUrl()}), 
+						e.getUrl(),
+						albumId,
+						tags.toArray(new String[]{}),
+						pub, exif, e.getSecret()));
+				}
+			//}
 		}
+		Logger.info("SIZE: "+lp.size());
 		
-		return photos.render(feed, lp, null, map, pages);
+		return photos.render(ps, lp, null, map, pages);
 	}
 	
 	/**
@@ -367,14 +368,33 @@ public class Application extends Controller {
 	 * @return
 	 * @throws IOException
 	 * @throws ServiceException
+	 * @throws FlickrException 
 	 */
 	@Logged(Role.ADMIN)
-	public static Result pub(int serviceIndex, String albumId, String photoId) throws IOException, ServiceException {
+	public static Result pub(int serviceIndex, String albumId, String photoId) throws IOException, FlickrException {
+		com.flickr4java.flickr.photos.Photo p = myServices.get(serviceIndex).getFlickr().getPhotosInterface().getPhoto(photoId);
+		Collection<Tag> tags = p.getTags();
+		Tag tag = null;
+		for(Tag t: tags) {
+			if(t.getValue().equals("public")) {
+				tag = t;
+				break;
+			}
+		}
+		if(tag == null) {
+			Tag t1 = new Tag();
+			t1.setValue("public");
+			tags.add(t1);
+		}
+		p.setTags(tags);
+		
+		/*
 		URL feedUrl = new URL(API_FEED_URL+"/albumid/"+albumId+"/photoid/"+photoId);
 		Logger.debug(feedUrl+"");
 		TagEntry myTag = new TagEntry(); 
 		myTag.setTitle(new PlainTextConstruct("public"));
 		myServices.get(serviceIndex).insert(feedUrl, myTag);
+		*/
 		return ok("1");
 	}
 
@@ -386,14 +406,31 @@ public class Application extends Controller {
 	 * @return
 	 * @throws IOException
 	 * @throws ServiceException
-	 */
+	 * @throws FlickrException 
+	 *
 	@Logged(Role.ADMIN)
-	public static Result priv(int serviceIndex, String albumId, String photoId) throws IOException, ServiceException {
+	public static Result priv(int serviceIndex, String albumId, String photoId) throws IOException, ServiceException, FlickrException {
+		com.flickr4java.flickr.photos.Photo p = myServices.get(serviceIndex).getPhotosInterface().getPhoto(photoId);
+		Collection<Tag> tags = p.getTags();
+		Tag tag = null;
+		for(Tag t: tags) {
+			if(t.getValue().equals("public")) {
+				tag = t;
+				break;
+			}
+		}
+		if(tag != null) {
+			tags.remove(tag);
+		}
+		p.setTags(tags);
+		
+		/*
 		URL entryUrl = new URL(API_URL+"/albumid/"+albumId+"/photoid/"+photoId+"/tag/public");
 		TagEntry te = myServices.get(serviceIndex).getEntry(entryUrl, TagEntry.class);
 		te.delete();
-		return ok("0");
-	}
+		*/
+		//return ok("0");
+	//}
 
 	/**
 	 * make album public
@@ -402,9 +439,13 @@ public class Application extends Controller {
 	 * @return
 	 * @throws IOException
 	 * @throws ServiceException
-	 */
+	 *
 	@Logged(Role.ADMIN)
 	public static Result pubAlbum(int serviceIndex, String albumId) throws IOException, ServiceException {
+		
+		PhotosetsInterface in = myServices.get(serviceIndex).getPhotosetsInterface();
+		Photoset ps = in.getInfo(albumId);
+		
 		URL feedUrl = new URL(API_URL+"/albumid/"+albumId);
 		Logger.debug(feedUrl+"");
 		AlbumEntry ae = myServices.get(serviceIndex).getEntry(feedUrl, AlbumEntry.class);
@@ -412,6 +453,7 @@ public class Application extends Controller {
 		ae.update();
 		return ok("1");
 	}
+	*/
 	
 	/**
 	 * make album private
@@ -420,7 +462,7 @@ public class Application extends Controller {
 	 * @return
 	 * @throws IOException
 	 * @throws ServiceException
-	 */
+	 *
 	@Logged(Role.ADMIN)
 	public static Result privAlbum(int serviceIndex, String albumId) throws IOException, ServiceException {
 		URL feedUrl = new URL(API_URL+"/albumid/"+albumId);
@@ -430,6 +472,7 @@ public class Application extends Controller {
 		ae.update();
 		return ok("0");
 	}
+	*/
 
 	/**
 	 * get exif tags
@@ -440,10 +483,9 @@ public class Application extends Controller {
 	 * @throws IOException
 	 * @throws ServiceException
 	 */
-	public static Result exif(int serviceIndex, String albumId, String photoId) throws IOException, ServiceException {
-		URL feedUrl = new URL(API_URL+"/albumid/"+albumId+"/photoid/"+photoId+"?fields=exif:tags,title");
-		PhotoEntry pe = myServices.get(serviceIndex).getEntry(feedUrl, PhotoEntry.class);
-		return ok(exif.render(pe));
+	public static Result exif(int serviceIndex, String albumId, String photoId, String photoSecret) throws IOException, FlickrException {
+		Flickr f = myServices.get(serviceIndex).getFlickr();
+		return ok(exif.render(f.getPhotosInterface().getExif(photoId, photoSecret)));
 	}
 
 	public static String getUUID() {
@@ -455,4 +497,58 @@ public class Application extends Controller {
 		return session("uuid");
 	}
 	
+	public static Result flickrAuth() throws Exception {
+		
+		String oauth_token = request().getQueryString("oauth_token");
+		String oauth_verifier = request().getQueryString("oauth_verifier");
+		String apiKey = null;
+		String secret = null;
+		
+		try {
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			
+			InputStream in;			
+			if(System.getProperty("config") != null && new File(System.getProperty("config")).canRead()) {
+				in =  new FileInputStream(new File(System.getProperty("config")));
+			} else {
+				if(new File(".", CONFIG).canRead()) {
+					in = new FileInputStream(new File(".", CONFIG));
+				} else {
+					in =  Application.class.getResourceAsStream("/resources/"+CONFIG);
+				}
+			}
+			Document doc = builder.parse(in);
+			in.close();
+			
+			XPath xpath = XPathFactory.newInstance().newXPath();
+			
+			/**
+			 * picasa accounts
+			 */
+			NodeList l = (NodeList) xpath.evaluate("//flickr/account", doc, XPathConstants.NODESET);
+			for(int i=0; i < l.getLength(); i++) {
+				Node account = l.item(i);
+				apiKey = account.getAttributes().getNamedItem("apiKey").getNodeValue();
+				secret = account.getAttributes().getNamedItem("secret").getNodeValue();
+			}
+		} catch (Exception e) {
+			throw new NoAccountsException(e);
+		}
+		
+		Flickr myService = new Flickr(apiKey, secret, new REST());
+		AuthInterface a = myService.getAuthInterface();
+		
+		if(oauth_verifier == null || oauth_verifier.equals("")) {
+			requestToken = a.getRequestToken("http://localhost:9000/auth");
+			Logger.info(requestToken.toString());
+			String url = a.getAuthorizationUrl(requestToken, com.flickr4java.flickr.auth.Permission.DELETE);
+			return redirect(url);
+		} else {
+			accessToken = a.getAccessToken(requestToken, new Verifier(oauth_verifier));
+		}
+		
+		return ok(auth.render(accessToken.toString()));
+	}
+
 }

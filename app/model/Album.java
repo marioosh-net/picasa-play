@@ -24,6 +24,13 @@ public class Album {
 		return title;
 	}
 	
+	public String getTitleShort() {
+		if(title != null && title.length() > 42) {
+			return title.substring(0, 39)+"...";
+		}
+		return title;
+	}
+	
 	public void setTitle(String title) {
 		this.title = title;
 	}

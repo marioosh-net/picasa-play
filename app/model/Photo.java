@@ -1,8 +1,8 @@
 package model;
 
+import java.util.Collection;
 import java.util.List;
-import com.google.gdata.data.photos.ExifTags;
-
+import com.flickr4java.flickr.photos.Exif;
 
 public class Photo {
 	private String title;
@@ -10,11 +10,12 @@ public class Photo {
 	private List<String> thumbs;
 	private String content;
 	private String albumId;
+	private String secret;
 	private String[] keywords;
 	private boolean pub;
-	private ExifTags exif;
+	private Collection<Exif> exif;
 	
-	public Photo(String title, String id, List<String> thumbs, String content, String albumId, String[] keywords, boolean pub, ExifTags exif) {
+	public Photo(String title, String id, List<String> thumbs, String content, String albumId, String[] keywords, boolean pub, Collection<Exif> exif, String secret) {
 		super();
 		this.title = title;
 		this.id = id;
@@ -24,6 +25,7 @@ public class Photo {
 		this.keywords = keywords;
 		this.pub = pub;
 		this.exif = exif;
+		this.secret = secret;
 	}
 
 	public String getTitle() {
@@ -89,12 +91,22 @@ public class Photo {
 	}
 
 	
-	public ExifTags getExif() {
+	public Collection<Exif> getExif() {
 		return exif;
 	}
 	
 	
-	public void setExif(ExifTags exif) {
+	public void setExif(Collection<Exif> exif) {
 		this.exif = exif;
+	}
+
+	
+	public String getSecret() {
+		return secret;
+	}
+	
+	
+	public void setSecret(String secret) {
+		this.secret = secret;
 	}
 }

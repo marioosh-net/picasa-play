@@ -14,14 +14,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import others.Role;
+import others.Service;
 import views.html.test;
-import com.google.gdata.client.photos.PicasawebService;
-import com.google.gdata.data.PlainTextConstruct;
-import com.google.gdata.data.media.MediaFileSource;
-import com.google.gdata.data.media.MediaStreamSource;
-import com.google.gdata.data.photos.AlbumEntry;
-import com.google.gdata.data.photos.PhotoEntry;
-import com.google.gdata.data.photos.UserFeed;
+import com.flickr4java.flickr.Flickr;
+import com.flickr4java.flickr.RequestContext;
+import com.flickr4java.flickr.photosets.Photoset;
+import com.flickr4java.flickr.photosets.Photosets;
+import com.flickr4java.flickr.uploader.UploadMetaData;
 import model.Album;
 import model.Utils;
 import net.htmlparser.jericho.Element;
@@ -40,12 +39,10 @@ public class Test extends Controller {
 	@Logged(Role.ADMIN)
 	public static Result deleteAllAlbums() {
 		try {
-			URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album");
-			
-			for(PicasawebService s: Application.myServices) {
-				UserFeed feed = s.getFeed(feedUrl, UserFeed.class);
-				for(AlbumEntry a: feed.getAlbumEntries()) {
-					a.delete();
+			for(Service s: Application.myServices) {
+				Photosets ps = s.getFlickr().getPhotosetsInterface().getList(s.getAuth().getUser().getId());
+				for (Photoset e: ps.getPhotosets()) {
+					s.getFlickr().getPhotosetsInterface().delete(e.getId());
 				}
 			}
 		} catch (Exception e) {
@@ -54,7 +51,7 @@ public class Test extends Controller {
 		return redirect("/?message=albums deleted");
 	}
 	
-	@Logged(Role.ADMIN)
+	// @Logged(Role.ADMIN)
 	public static Result loadTestData(int count, boolean create) {
 		String address = "http://www.impawards.com/2012/std.html";
 		String outputDir = "data";
@@ -82,6 +79,8 @@ public class Test extends Controller {
 			
 			if (content != null) {
 
+				int index = random.nextInt(Application.myServices.size());
+				
 				List<Element> trs = content.getAllElements(HTMLElementName.TR);
 				System.out.println(trs.size() + " nodes found.");
 				Collections.shuffle(trs); // pomieszaj :)
@@ -91,48 +90,48 @@ public class Test extends Controller {
 					Element tdWithTitle = tr.getFirstElement(HTMLElementName.TD);
 					Element font = tdWithTitle.getFirstElement();
 					String name = new TextExtractor(font.getContent()).toString();
-
-					int index = random.nextInt(Application.myServices.size());					
+										
 					String albumId = "";
-					if(create) {
-						info("Creating album '"+name+"' ...");
-						URL postUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default");
-						AlbumEntry myAlbum = new AlbumEntry();
-						myAlbum.setTitle(new PlainTextConstruct(name));
-						AlbumEntry insertedEntry = Application.myServices.get(index).insert(postUrl, myAlbum);
-						// Utils.describe(insertedEntry);
-						albumId = insertedEntry.getId().substring(insertedEntry.getId().lastIndexOf('/')+1);
-						j++;
-					} else {
-						List<Album> l = Application.getAlbums();
-						Album a = l.get(random.nextInt(l.size()));
-						albumId = a.getId();
-						index = a.getServiceIndex();
-					}
-					
-					URL albumPostUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId);
-					
+			
+					int k = 0;
 					// dodaj obrazki do produktu
 					for (Element img : list) {
+						
 						String imageUrl = prefix + img.getAttributeValue("src");
 						imageUrl = imageUrl.replaceFirst("thumbs/imp_", "posters/");
 						String filename = imageUrl.substring(imageUrl.lastIndexOf('/')+1);
 						
 						info(imageUrl);
-						
-						PhotoEntry myPhoto = new PhotoEntry();
-						myPhoto.setTitle(new PlainTextConstruct(filename));
-						myPhoto.setClient("myClientName");
 						InputStream in = new URL(imageUrl).openStream();
-						MediaStreamSource myMedia = new MediaStreamSource(in, "image/jpeg");
-						myPhoto.setMediaSource(myMedia);
-						PhotoEntry returnedPhoto = Application.myServices.get(index).insert(albumPostUrl, myPhoto);
+						UploadMetaData metaData = new UploadMetaData();
+		                metaData.setHidden(true);
+		                metaData.setPublicFlag(false);
+		                metaData.setTitle(filename);
+		                
+		                Photoset photoset;
+						if(k == 0 && create) {
+							info("Creating album '"+name+"' ...");
+							
+							RequestContext.getRequestContext().setAuth(Application.myServices.get(index).getAuth()); // auth request
+			                String photoId = Application.myServices.get(index).getFlickr().getUploader().upload(in, metaData);
+							photoset = Application.myServices.get(index).getFlickr().getPhotosetsInterface().create(name, "", photoId);
+						} else {
+							List<Album> l = Application.getAlbums();
+							Album a = l.get(random.nextInt(l.size()));
+							albumId = a.getId();
+							index = a.getServiceIndex();
+
+			                String photoId = Application.myServices.get(index).getFlickr().getUploader().upload(in, metaData);
+							Application.myServices.get(index).getFlickr().getPhotosetsInterface().addPhoto(albumId, photoId);
+						}
+
 						in.close();
 						i++;
 						
 						if(!create && i >= count) {
 							break;
 						}
+						k++;
 					}
 					
 					if((create && j >= count) || (!create && i >= count)) {

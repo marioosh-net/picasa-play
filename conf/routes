@@ -8,16 +8,17 @@ GET     /logout                                     controllers.Application.logo
 GET     /                                           controllers.Application.albums()
 GET     /album/:serviceIndex/:albumId               controllers.Application.photos(serviceIndex:Int, albumId, start:Int ?=1, max:Int ?=24)
 GET     /direct/:serviceIndex/:albumId              controllers.Application.direct(serviceIndex:Int, albumId, start:Int ?=1, max:Int ?=24)
-GET     /pub/:serviceIndex/:albumId/:photoId        controllers.Application.pub(serviceIndex:Int, albumId, photoId)
-GET     /priv/:serviceIndex/:albumId/:photoId       controllers.Application.priv(serviceIndex:Int, albumId, photoId)
-GET     /pub/:serviceIndex/:albumId                 controllers.Application.pubAlbum(serviceIndex:Int, albumId)
-GET     /priv/:serviceIndex/:albumId                controllers.Application.privAlbum(serviceIndex:Int, albumId)
-GET     /exif/:serviceIndex/:albumId/:photoId       controllers.Application.exif(serviceIndex:Int, albumId, photoId)
+# GET     /pub/:serviceIndex/:albumId/:photoId        controllers.Application.pub(serviceIndex:Int, albumId, photoId)
+# GET     /priv/:serviceIndex/:albumId/:photoId       controllers.Application.priv(serviceIndex:Int, albumId, photoId)
+# GET     /pub/:serviceIndex/:albumId                 controllers.Application.pubAlbum(serviceIndex:Int, albumId)
+# GET     /priv/:serviceIndex/:albumId                controllers.Application.privAlbum(serviceIndex:Int, albumId)
+GET     /exif/:serviceIndex/:albumId/:photoId/:photoSecret       controllers.Application.exif(serviceIndex:Int, albumId, photoId, photoSecret)
 GET     /test                                       controllers.Test.test
 POST    /test                                       controllers.Test.test
 GET     /test/:create                               controllers.Test.loadTestData(count:Int ?=1, create:Boolean)
 GET     /test/:create/:count                        controllers.Test.loadTestData(count:Int, create:Boolean)
 GET     /deleteall                                  controllers.Test.deleteAllAlbums()
+GET     /auth                                  controllers.Application.flickrAuth()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                               controllers.Assets.at(path="/public", file)

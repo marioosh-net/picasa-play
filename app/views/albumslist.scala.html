@@ -37,7 +37,7 @@
 	       
             <a url='/album/@albums(i).getServiceIndex()/@albums(i).getId()' selector='#uu@i' href="#" title="@albums(i).getTitle()" class="openalbum @if(albums(i).isPub()){pub}" >
 		        <div id="uu@i" class='oneset oneset_@albums(i).getId() @if(albums(i).getId() == albumId){album-selected}'>
-		            @albums(i).getTitle()@*<span class="counts">(@albums(i).getCount())</span>*@
+		            @albums(i).getTitleShort()@*<span class="counts">(@albums(i).getCount())</span>*@
 		            @if(session.get("user") != null) {
 		            	<span class="pubi" style="@if(!albums(i).isPub()){display: none;}">pub</span>
 		            }
