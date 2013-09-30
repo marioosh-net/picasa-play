@@ -6,7 +6,7 @@
 *@
     <div id="photos-header">
     <div class="left album-title">
-        <a href="/">@Messages("albums")</a>&nbsp;&raquo;&nbsp; <a href="/direct/@session.get("si")/@session.get("ai")#direct">@session.get("aname")@*@feed.getTitle().getPlainText()*@</a>
+        <a href="/">@Messages("albums")</a>&nbsp;&raquo;&nbsp; <a href="/direct/@session.get("si")/@session.get("ai")#direct">@session.get("aname")@*@feed.getTitle().getPlainText()*@</a> [<a target="_blank" href="/play/@session.get("si")/@session.get("ai")">play</a>]
         @if(session.get("user") != null) {
         <span class="album_options">
 	        <a class="pub vis" href="#" style="@if(session.get("pub") != null){display: none;}" url='/pub/@session.get("si")/@session.get("ai")' al='true'>public</a>

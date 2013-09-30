@@ -38,6 +38,7 @@ import views.html.albumslist;
 import views.html.main;
 import views.html.photos;
 import views.html.exif;
+import views.html.slideshow;
 import com.google.gdata.client.Query;
 import com.google.gdata.client.photos.PicasawebService;
 import com.google.gdata.data.PlainTextConstruct;
@@ -270,7 +271,71 @@ public class Application extends Controller {
 	public static Result direct(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
 		return ok(main.render(albumId+"", albumslist.render(getAlbums(), albumId), photosHtml(serviceIndex, albumId, start, max)));
 	}
-	
+
+	public static Result slideshow(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
+		Logger.info("Getting photos list ("+new SimpleDateFormat("dd.MM.yyyy hh:ss").format(new Date(System.currentTimeMillis()))+" | IP: "+request().remoteAddress()+")...");
+		myService = myServices.get(serviceIndex);
+		session("si", serviceIndex+"");
+		session("ai", albumId+"");
+		URL feedUrl = new URL(API_FEED_URL+"/albumid/"+albumId+"?kind=photo"+"&thumbsize="+THUMB_SIZE+"&imgmax="+IMG_SIZE+
+				(session("user") != null ?
+						"&fields=id,title,entry(title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords),openSearch:totalResults,openSearch:startIndex,openSearch:itemsPerPage"	:
+						"&fields=title,openSearch:totalResults,openSearch:startIndex,openSearch:itemsPerPage,entry[media:group/media:keywords='public'%20or%20media:group/media:keywords='public,%20picnik'%20or%20media:group/media:keywords='picnik,%20public'](title,id,gphoto:id,gphoto:albumid,gphoto:numphotos,media:group/media:thumbnail,media:group/media:content,media:group/media:keywords)")+
+				(session("user") != null ? 
+						"&max-results="+max+"&start-index="+start : 
+						"")
+				//+(session("user") != null ? "" : "&tag=public") /* to rozsortowuje kolejnosc fotek! */
+				//+,exif:tags)"*/
+				);
+		Logger.debug(feedUrl.toString());
+		Query photosQuery = new Query(feedUrl);
+		
+		// AlbumFeed feed = myService.getFeed(feedUrl, AlbumFeed.class);		
+		AlbumFeed feed = myService.query(photosQuery, AlbumFeed.class);
+		if(feed.getTitle().getPlainText().endsWith("\u00A0")) {
+			session("pub", "1");
+		} else {
+			session().remove("pub");
+		}
+		
+		String t = feed.getTitle().getPlainText();
+		session("aname", t);
+		Logger.debug("total:"+feed.getTotalResults());
+		Logger.debug("perPage:"+feed.getItemsPerPage());
+		Logger.debug("start:"+feed.getStartIndex());
+		java.util.HashMap<String, Integer> map = new java.util.HashMap<String, Integer>();
+		map.put("total",feed.getTotalResults());
+		map.put("start",feed.getStartIndex());
+		map.put("per",feed.getItemsPerPage());
+		
+		List<Integer> pages = new ArrayList<Integer>();
+		for(int i = 1; i <= feed.getTotalResults()/feed.getItemsPerPage() + (feed.getTotalResults()%feed.getItemsPerPage() == 0 ? 0 : 1); i++) {
+			pages.add(i);
+		}
+		
+		List<Photo> lp = new ArrayList<Photo>();
+		for(GphotoEntry<PhotoEntry> e: feed.getEntries()) {
+			MediaGroup g = e.getExtension(MediaGroup.class);
+			ExifTags exif = e.getExtension(ExifTags.class);
+			
+			if(g != null) {
+				boolean pub = g.getKeywords().getKeywords().contains("public");
+				if(session("user") != null || pub) {
+					lp.add(new Photo(e.getTitle().getPlainText(), 
+							e.getExtension(GphotoId.class).getValue(), 
+						Arrays.asList(new String[]{g.getThumbnails().get(0).getUrl(), 
+								g.getThumbnails().get(1).getUrl(), 
+								g.getThumbnails().get(2).getUrl()}), 
+						g.getContents().get(0).getUrl(), 
+						e.getExtension(GphotoAlbumId.class).getValue(), 
+						g.getKeywords().getKeywords().toArray(new String[]{}), pub, exif));
+				}
+			}
+		}
+		
+		return ok(slideshow.render(lp));
+	}
+
 	/**
 	 * photos in album as Result
 	 * @param serviceIndex
